@@ -1,17 +1,16 @@
 FROM python:3.11-slim
 
-# Set the working directory
 WORKDIR /app
 
-# Install dependencies
-# We don't have a requirements.txt, so we install them directly
-RUN pip install streamlit ccxt pandas numpy sqlalchemy psycopg2-binary alpaca-py plotly
+# Copy the requirements file first for better caching
+COPY requirements.txt .
 
-# Copy your files into the container
+# Install dependencies using the file
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your application code
 COPY . .
 
-# Expose the port
 EXPOSE 8501
 
-# Start the application
 CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
