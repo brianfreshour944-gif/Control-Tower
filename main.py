@@ -1,6 +1,13 @@
 import streamlit as st
-import database as db  # This is the new module
+import database as db
+import strategy as strat # The new Brain
 
-# Now your data loading becomes clean:
-trades_df   = db.load_trades()
-status_df   = db.get_bot_status()
+# Load data
+trades_df = db.load_trades()
+
+# Compute metrics
+fifo_data = strat.fifo_stats_all_bots(trades_df)
+performance = strat.compute_performance_metrics(trades_df)
+
+# Now just render the results
+st.dataframe(performance)
