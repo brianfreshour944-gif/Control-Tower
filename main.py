@@ -97,46 +97,45 @@ def main():
     if "last_refresh" not in st.session_state: st.session_state.last_refresh = datetime.now()
 
     # Sidebar
-    # Sidebar
-with st.sidebar:
-    st.header("⚙️ Control Panel")
-    
-    if st.button("🔄 Refresh All Data", use_container_width=True):
-        st.cache_data.clear()
-        st.session_state.last_refresh = datetime.now()
-        st.rerun()
-        
-    auto = st.toggle("Auto-refresh every 5s", value=st.session_state.auto_refresh)
-    if auto != st.session_state.auto_refresh:
-        st.session_state.auto_refresh = auto
-        st.rerun()
-    st.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
-    st.divider()
+    with st.sidebar:
+        st.header("⚙️ Control Panel")
 
-    # ----- Reset Button with proper confirmation -----
-    if "confirm_reset" not in st.session_state:
-        st.session_state.confirm_reset = False
+        if st.button("🔄 Refresh All Data", use_container_width=True):
+            st.cache_data.clear()
+            st.session_state.last_refresh = datetime.now()
+            st.rerun()
 
-    if st.button("🗑️ Reset All Trading Stats", type="secondary", use_container_width=True):
-        st.session_state.confirm_reset = True
+        auto = st.toggle("Auto-refresh every 5s", value=st.session_state.auto_refresh)
+        if auto != st.session_state.auto_refresh:
+            st.session_state.auto_refresh = auto
+            st.rerun()
+        st.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+        st.divider()
 
-    if st.session_state.confirm_reset:
-        st.warning("⚠️ **ARE YOU SURE?** This will DELETE ALL TRADES and reset daily loss to $0.00!")
-        st.warning("This action **cannot be undone**. Export your data first if needed.")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("✅ YES, DELETE EVERYTHING", type="primary", use_container_width=True):
-                db.reset_all_trading_stats()
-                st.success("✅ All trading stats have been reset!")
-                st.session_state.confirm_reset = False
-                st.rerun()
-        with col2:
-            if st.button("❌ Cancel", use_container_width=True):
-                st.session_state.confirm_reset = False
-                st.rerun()
+        # ----- Reset Button with proper confirmation -----
+        if "confirm_reset" not in st.session_state:
+            st.session_state.confirm_reset = False
 
-    st.divider()
-    # ... rest of your sidebar content (EMERGENCY STOP, etc.)
+        if st.button("🗑️ Reset All Trading Stats", type="secondary", use_container_width=True):
+            st.session_state.confirm_reset = True
+
+        if st.session_state.confirm_reset:
+            st.warning("⚠️ **ARE YOU SURE?** This will DELETE ALL TRADES and reset daily loss to $0.00!")
+            st.warning("This action **cannot be undone**. Export your data first if needed.")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ YES, DELETE EVERYTHING", type="primary", use_container_width=True):
+                    db.reset_all_trading_stats()
+                    st.success("✅ All trading stats have been reset!")
+                    st.session_state.confirm_reset = False
+                    st.rerun()
+            with col2:
+                if st.button("❌ Cancel", use_container_width=True):
+                    st.session_state.confirm_reset = False
+                    st.rerun()
+
+        st.divider()
+
         if st.button("🛑 EMERGENCY STOP ALL", type="secondary", use_container_width=True):
             if st.checkbox("Confirm stop all bots"):
                 with db.get_db_engine().connect() as conn:
