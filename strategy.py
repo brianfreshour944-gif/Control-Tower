@@ -116,3 +116,26 @@ def get_fifo_debug(bot_name, df_trades):
                 b['qty'] -= mq; sq -= mq
                 if b['qty'] <= 1e-8: buy_queue.pop(0)
     return pd.DataFrame(matched), sum(b['qty'] for b in buy_queue)
+
+def get_daily_pnl_per_bot(df_trades):
+    """
+    Returns a DataFrame with columns: date, bot_name, daily_pnl
+    daily_pnl = sum of net cash flow (SELL +value, BUY -value, minus fees) per bot per day.
+    """
+    if df_trades.empty:
+        return pd.DataFrame(columns=['date', 'bot_name', 'daily_pnl'])
+
+    df = df_trades.copy()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['date'] = df['timestamp'].dt.date
+
+    # Net cash per trade: SELL => +value - fee ; BUY => -value - fee
+    df['net_cash'] = df.apply(
+        lambda r: r['value'] - r['fee'] if r['side'].upper() == 'SELL'
+                  else -r['value'] - r['fee'],
+        axis=1
+    )
+
+    daily = df.groupby(['date', 'bot_name'], as_index=False)['net_cash'].sum()
+    daily.columns = ['date', 'bot_name', 'daily_pnl']
+    return daily.sort_values(['date', 'bot_name'])
