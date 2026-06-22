@@ -124,26 +124,16 @@ def main():
                 st.rerun()
 
     # ---- Load data ----
-    # ---- Load data ----
-trades_df = db.load_trades()
-status_df = db.get_bot_status()
-error_df = db.load_errors()
-df_pos = db.get_unified_portfolio()
-live_orders = db.get_live_exchange_orders()
-backtest_df = db.get_backtest_results()
-db_orders = db.get_open_orders_from_db()
-# ---- Load data ----
-trades_df = db.load_trades()
+    trades_df = db.load_trades()
+    # ===== 🛠️ DEBUG: Check which bots are loaded =====
+    print("🔍 Bots in trades_df:", trades_df['bot_name'].unique().tolist())
 
-# ===== 🛠️ DEBUG: Check which bots are loaded =====
-print("🔍 Bots in trades_df:", trades_df['bot_name'].unique().tolist())
-
-status_df = db.get_bot_status()
-error_df = db.load_errors()
-df_pos = db.get_unified_portfolio()
-live_orders = db.get_live_exchange_orders()
-backtest_df = db.get_backtest_results()
-db_orders = db.get_open_orders_from_db()
+    status_df = db.get_bot_status()
+    error_df = db.load_errors()
+    df_pos = db.get_unified_portfolio()
+    live_orders = db.get_live_exchange_orders()
+    backtest_df = db.get_backtest_results()
+    db_orders = db.get_open_orders_from_db()
 
     # ---- Apply sanitizer to ALL DataFrames ----
     trades_df = sanitize_df(trades_df)
@@ -302,58 +292,57 @@ db_orders = db.get_open_orders_from_db()
             st.success("✅ No errors logged.")
 
     # === TAB 6: PER-BOT STATS ===
-    # === TAB 6: PER-BOT STATS ===
-with tab6:
-    st.subheader("🎯 Per-Bot Performance — FIFO Realized P&L + Inventory")
-    st.caption("Realized P&L = profit on closed (matched) trades only. Inventory = coins still held.")
-    
-    if trades_df.empty:
-        st.info("No trade data yet.")
-    else:
-        # Show all bot names from trades (for debugging)
-        st.write("✅ Bots in trade history:", trades_df['bot_name'].unique().tolist())
+    with tab6:
+        st.subheader("🎯 Per-Bot Performance — FIFO Realized P&L + Inventory")
+        st.caption("Realized P&L = profit on closed (matched) trades only. Inventory = coins still held.")
         
-        # Try to get FIFO stats
-        fifo = strat.fifo_stats_all_bots(trades_df)
-        
-        if not fifo:
-            st.warning("⚠️ FIFO stats returned empty. Showing raw trade summary instead.")
-            raw = trades_df.groupby('bot_name').agg({
-                'side': 'count',
-                'value': 'sum'
-            }).reset_index()
-            raw.columns = ['bot_name', 'Total Trades', 'Total Value']
-            st.dataframe(raw.style.format({'Total Value': '${:,.2f}'}), use_container_width=True)
+        if trades_df.empty:
+            st.info("No trade data yet.")
         else:
-            rows = list(fifo.values())
-            summary = pd.DataFrame(rows)[['bot_name','total_closed','wins','losses','win_rate','realized_pnl','orphaned_qty','orphaned_cost_basis']].rename(columns={
-                'total_closed':'Closed Trades','wins':'Wins','losses':'Losses','win_rate':'Win Rate %','realized_pnl':'Realized P&L','orphaned_qty':'Inventory Qty','orphaned_cost_basis':'Inventory Cost Basis'
-            })
-            st.dataframe(summary.style.format({
-                'Win Rate %':'{:.2f}%','Realized P&L':'${:,.2f}','Inventory Cost Basis':'${:,.2f}','Inventory Qty':'{:.6f}'
-            }).map(lambda v: 'color:#00ff9d' if isinstance(v, float) and v > 0 else 'color:#ff4d4d' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), use_container_width=True)
-            st.divider()
-            for bot_name, stats in fifo.items():
-                pnl = stats['realized_pnl']
-                icon = '🟢' if pnl >= 0 else '🔴'
-                with st.expander(f"{icon} {bot_name}  |  Realized P&L: {'+'if pnl>=0 else ''}${pnl:,.2f}  |  Win Rate: {stats['win_rate']}%", expanded=True):
-                    mc1,mc2,mc3,mc4 = st.columns(4)
-                    mc1.metric("Realized P&L", f"{'+'if pnl>=0 else ''}${pnl:,.2f}")
-                    mc2.metric("Win Rate", f"{stats['win_rate']}%")
-                    mc3.metric("Closed Trades", stats['total_closed'])
-                    mc4.metric("Wins / Losses", f"{stats['wins']} W / {stats['losses']} L")
-                    if stats['orphaned_qty'] > 0:
-                        st.info(f"📦 Open Inventory: {stats['orphaned_qty']:.6f} units | Cost basis: ${stats['orphaned_cost_basis']:,.2f} | This is unsold inventory — NOT a realized loss.")
-                    else:
-                        st.success("✅ All positions closed — clean state")
-            # Charts
-            chart_data = pd.DataFrame(list(fifo.values()))
-            st.plotly_chart(px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot (FIFO closed trades only)", color='realized_pnl', color_continuous_scale='RdYlGn'), use_container_width=True)
-            fig_wl = go.Figure()
-            fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#4ade80'))
-            fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#f87171'))
-            fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group')
-            st.plotly_chart(fig_wl, use_container_width=True)
+            # Show all bot names from trades (for debugging)
+            st.write("✅ Bots in trade history:", trades_df['bot_name'].unique().tolist())
+            
+            # Try to get FIFO stats
+            fifo = strat.fifo_stats_all_bots(trades_df)
+            
+            if not fifo:
+                st.warning("⚠️ FIFO stats returned empty. Showing raw trade summary instead.")
+                raw = trades_df.groupby('bot_name').agg({
+                    'side': 'count',
+                    'value': 'sum'
+                }).reset_index()
+                raw.columns = ['bot_name', 'Total Trades', 'Total Value']
+                st.dataframe(raw.style.format({'Total Value': '${:,.2f}'}), use_container_width=True)
+            else:
+                rows = list(fifo.values())
+                summary = pd.DataFrame(rows)[['bot_name','total_closed','wins','losses','win_rate','realized_pnl','orphaned_qty','orphaned_cost_basis']].rename(columns={
+                    'total_closed':'Closed Trades','wins':'Wins','losses':'Losses','win_rate':'Win Rate %','realized_pnl':'Realized P&L','orphaned_qty':'Inventory Qty','orphaned_cost_basis':'Inventory Cost Basis'
+                })
+                st.dataframe(summary.style.format({
+                    'Win Rate %':'{:.2f}%','Realized P&L':'${:,.2f}','Inventory Cost Basis':'${:,.2f}','Inventory Qty':'{:.6f}'
+                }).map(lambda v: 'color:#00ff9d' if isinstance(v, float) and v > 0 else 'color:#ff4d4d' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), use_container_width=True)
+                st.divider()
+                for bot_name, stats in fifo.items():
+                    pnl = stats['realized_pnl']
+                    icon = '🟢' if pnl >= 0 else '🔴'
+                    with st.expander(f"{icon} {bot_name}  |  Realized P&L: {'+'if pnl>=0 else ''}${pnl:,.2f}  |  Win Rate: {stats['win_rate']}%", expanded=True):
+                        mc1,mc2,mc3,mc4 = st.columns(4)
+                        mc1.metric("Realized P&L", f"{'+'if pnl>=0 else ''}${pnl:,.2f}")
+                        mc2.metric("Win Rate", f"{stats['win_rate']}%")
+                        mc3.metric("Closed Trades", stats['total_closed'])
+                        mc4.metric("Wins / Losses", f"{stats['wins']} W / {stats['losses']} L")
+                        if stats['orphaned_qty'] > 0:
+                            st.info(f"📦 Open Inventory: {stats['orphaned_qty']:.6f} units | Cost basis: ${stats['orphaned_cost_basis']:,.2f} | This is unsold inventory — NOT a realized loss.")
+                        else:
+                            st.success("✅ All positions closed — clean state")
+                # Charts
+                chart_data = pd.DataFrame(list(fifo.values()))
+                st.plotly_chart(px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot (FIFO closed trades only)", color='realized_pnl', color_continuous_scale='RdYlGn'), use_container_width=True)
+                fig_wl = go.Figure()
+                fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#4ade80'))
+                fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#f87171'))
+                fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group')
+                st.plotly_chart(fig_wl, use_container_width=True)
 
     # === TAB 7: TRADE HISTORY ===
     with tab7:
