@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import json
 import numpy as np
 from datetime import datetime, date
+from sqlalchemy import text  # needed for EMERGENCY STOP
 
 # Import our modules
 import database as db
@@ -48,6 +49,44 @@ def metric_box(label, content_html):
 
 def white_val(value, fmt="${:,.2f}"):
     return f'<div class="custom-metric-value" style="color:#fff">{fmt.format(value)}</div>'
+
+# ---------- Data Sanitizer (fixes Arrow conversion errors) ----------
+def sanitize_df(df):
+    """Convert all columns to safe types to prevent Arrow conversion errors."""
+    if df.empty:
+        return df
+
+    # Make a copy to avoid modifying original
+    df = df.copy()
+
+    # 1. Handle ID columns – ensure they are strings (and handle varying lengths)
+    id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']  # add any other identifier columns
+    for col in id_columns:
+        if col in df.columns:
+            # Convert to string, replace NaN with empty string
+            df[col] = df[col].astype(str).fillna('')
+
+    # 2. Convert object columns that look like numbers to float
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            try:
+                # Try to convert to numeric, but skip if it's a string column already handled
+                if col not in id_columns:
+                    df[col] = pd.to_numeric(df[col], errors='ignore')
+            except:
+                pass
+
+    # 3. For any numeric column, fill NaN with 0 and convert to float64
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            df[col] = df[col].fillna(0).astype('float64')
+
+    # 4. Convert any timestamp columns to datetime
+    for col in df.columns:
+        if 'time' in col.lower() or 'date' in col.lower():
+            df[col] = pd.to_datetime(df[col], errors='coerce')
+
+    return df
 
 # ---------- Main ----------
 def main():
@@ -92,6 +131,15 @@ def main():
     live_orders = db.get_live_exchange_orders()
     backtest_df = db.get_backtest_results()
     db_orders = db.get_open_orders_from_db()
+
+    # ---- Apply sanitizer to ALL DataFrames ----
+    trades_df = sanitize_df(trades_df)
+    status_df = sanitize_df(status_df)
+    error_df = sanitize_df(error_df)
+    df_pos = sanitize_df(df_pos)
+    live_orders = sanitize_df(live_orders)
+    backtest_df = sanitize_df(backtest_df)
+    db_orders = sanitize_df(db_orders)
 
     # ---- Compute metrics ----
     fifo = strat.fifo_stats_all_bots(trades_df)
