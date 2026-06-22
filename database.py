@@ -202,17 +202,19 @@ def get_live_exchange_orders():
     return pd.DataFrame(orders)
 
 def reset_all_trading_stats():
+    """⚠️ DESTRUCTIVE: Deletes all trades and resets daily loss to 0."""
     engine = get_db_engine()
     with engine.connect() as conn:
         conn.execute(text("DELETE FROM trades"))
         conn.execute(text("DELETE FROM bot_orders"))
         conn.execute(text("UPDATE bot_status SET daily_loss = 0"))
+        # Optional: Reset specific bot status if you want
         conn.execute(text("""
             INSERT INTO bot_status (bot_name, status, daily_loss, daily_loss_limit)
             VALUES ('okx_grid_bot', 'RUNNING', 0, 150)
             ON CONFLICT (bot_name) DO UPDATE
-            SET daily_loss = 0, status = 'RUNNING', daily_loss_limit = 150"""))
+            SET daily_loss = 0, status = 'RUNNING', daily_loss_limit = 150
+        """))
         conn.commit()
     st.cache_data.clear()
-    st.success("✅ All trading stats reset.")
-    st.rerun()
+    # Do NOT call st.rerun() here – let the main script handle it
