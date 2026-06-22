@@ -198,10 +198,11 @@ def main():
     st.divider()
 
     # ---- Tabs ----
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
         "🤖 Bot Control", "💰 Portfolio", "📋 Open Orders", "📈 Performance",
         "🚨 Error Log", "🎯 Per-Bot Stats", "📜 Trade History",
-        "📊 Backtest vs Live", "📈 Bot P&L Comparison", "🧪 FIFO Debugger"
+        "📊 Backtest vs Live", "📈 Bot P&L Comparison", "🧪 FIFO Debugger",
+        "📊 Daily P&L per Bot"
     ])
 
     # === TAB 1: BOT CONTROL ===
@@ -429,6 +430,52 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 st.dataframe(debug_df, use_container_width=True)
                 debug_df['cum_pnl'] = debug_df['pnl'].cumsum()
                 st.plotly_chart(px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L"), use_container_width=True)
+
+    # === TAB 11: DAILY P&L PER BOT ===
+    with tab11:
+        st.subheader("📊 Daily Realized P&L per Bot")
+        st.caption("Positive = net profit from sells; negative = net buying (inventory accumulation).")
+
+        if trades_df.empty:
+            st.info("No trade data available.")
+        else:
+            daily_df = strat.get_daily_pnl_per_bot(trades_df)
+            if daily_df.empty:
+                st.info("No daily data.")
+            else:
+                # ---- Bar chart ----
+                fig = px.bar(
+                    daily_df,
+                    x='date',
+                    y='daily_pnl',
+                    color='bot_name',
+                    title="Daily P&L by Bot",
+                    labels={'daily_pnl': 'Daily P&L (USD)', 'date': 'Date'},
+                    barmode='group'
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
+                # ---- Pivot table ----
+                pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
+                st.dataframe(
+                    pivot.style.format("{:,.2f}").map(
+                        lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '',
+                        subset=pd.IndexSlice[:, :]
+                    ),
+                    use_container_width=True
+                )
+
+                # ---- Total per bot ----
+                st.subheader("Total Realized P&L per Bot (from daily aggregation)")
+                total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
+                total_per_bot.columns = ['bot_name', 'Total P&L']
+                st.dataframe(
+                    total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(
+                        lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '',
+                        subset=['Total P&L']
+                    ),
+                    use_container_width=True
+                )
 
 if __name__ == "__main__":
     main()
