@@ -2,7 +2,6 @@
 FILE: database.py
 Handles all SQL connection, table creation, and data retrieval.
 """
-# database.py
 import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, text, inspect
@@ -119,11 +118,9 @@ def get_open_orders_from_db():
 
 @st.cache_data(ttl=15, show_spinner=False)
 def get_unified_portfolio():
-    # Alpaca & OKX clients – you can keep them here or move to a separate client module
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import GetOrdersRequest
     from alpaca.trading.enums import QueryOrderStatus
-    import os
     API_KEY = os.getenv("APCA_API_KEY_ID")
     API_SECRET = os.getenv("APCA_API_SECRET_KEY")
     PAPER = os.getenv("APCA_API_PAPER", "true").lower() == "true"
@@ -167,7 +164,6 @@ def get_live_exchange_orders():
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import GetOrdersRequest
     from alpaca.trading.enums import QueryOrderStatus
-    import os
     API_KEY = os.getenv("APCA_API_KEY_ID")
     API_SECRET = os.getenv("APCA_API_SECRET_KEY")
     PAPER = os.getenv("APCA_API_PAPER", "true").lower() == "true"
@@ -208,7 +204,6 @@ def reset_all_trading_stats():
         conn.execute(text("DELETE FROM trades"))
         conn.execute(text("DELETE FROM bot_orders"))
         conn.execute(text("UPDATE bot_status SET daily_loss = 0"))
-        # Optional: Reset specific bot status if you want
         conn.execute(text("""
             INSERT INTO bot_status (bot_name, status, daily_loss, daily_loss_limit)
             VALUES ('okx_grid_bot', 'RUNNING', 0, 150)
@@ -217,4 +212,12 @@ def reset_all_trading_stats():
         """))
         conn.commit()
     st.cache_data.clear()
-    # Do NOT call st.rerun() here – let the main script handle it
+
+# ===== NEW: Clear Errors Function =====
+def clear_errors():
+    """⚠️ DESTRUCTIVE: Deletes all error logs from the bot_errors table."""
+    engine = get_db_engine()
+    with engine.connect() as conn:
+        conn.execute(text("DELETE FROM bot_errors"))
+        conn.commit()
+    st.cache_data.clear()
