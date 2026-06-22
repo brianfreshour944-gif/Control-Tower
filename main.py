@@ -124,13 +124,26 @@ def main():
                 st.rerun()
 
     # ---- Load data ----
-    trades_df = db.load_trades()
-    status_df = db.get_bot_status()
-    error_df = db.load_errors()
-    df_pos = db.get_unified_portfolio()
-    live_orders = db.get_live_exchange_orders()
-    backtest_df = db.get_backtest_results()
-    db_orders = db.get_open_orders_from_db()
+    # ---- Load data ----
+trades_df = db.load_trades()
+status_df = db.get_bot_status()
+error_df = db.load_errors()
+df_pos = db.get_unified_portfolio()
+live_orders = db.get_live_exchange_orders()
+backtest_df = db.get_backtest_results()
+db_orders = db.get_open_orders_from_db()
+# ---- Load data ----
+trades_df = db.load_trades()
+
+# ===== 🛠️ DEBUG: Check which bots are loaded =====
+print("🔍 Bots in trades_df:", trades_df['bot_name'].unique().tolist())
+
+status_df = db.get_bot_status()
+error_df = db.load_errors()
+df_pos = db.get_unified_portfolio()
+live_orders = db.get_live_exchange_orders()
+backtest_df = db.get_backtest_results()
+db_orders = db.get_open_orders_from_db()
 
     # ---- Apply sanitizer to ALL DataFrames ----
     trades_df = sanitize_df(trades_df)
@@ -289,11 +302,28 @@ def main():
             st.success("✅ No errors logged.")
 
     # === TAB 6: PER-BOT STATS ===
-    with tab6:
-        st.subheader("🎯 Per-Bot Performance — FIFO Realized P&L + Inventory")
-        st.caption("Realized P&L = profit on closed (matched) trades only. Inventory = coins still held.")
+    # === TAB 6: PER-BOT STATS ===
+with tab6:
+    st.subheader("🎯 Per-Bot Performance — FIFO Realized P&L + Inventory")
+    st.caption("Realized P&L = profit on closed (matched) trades only. Inventory = coins still held.")
+    
+    if trades_df.empty:
+        st.info("No trade data yet.")
+    else:
+        # Show all bot names from trades (for debugging)
+        st.write("✅ Bots in trade history:", trades_df['bot_name'].unique().tolist())
+        
+        # Try to get FIFO stats
+        fifo = strat.fifo_stats_all_bots(trades_df)
+        
         if not fifo:
-            st.info("No trade data yet.")
+            st.warning("⚠️ FIFO stats returned empty. Showing raw trade summary instead.")
+            raw = trades_df.groupby('bot_name').agg({
+                'side': 'count',
+                'value': 'sum'
+            }).reset_index()
+            raw.columns = ['bot_name', 'Total Trades', 'Total Value']
+            st.dataframe(raw.style.format({'Total Value': '${:,.2f}'}), use_container_width=True)
         else:
             rows = list(fifo.values())
             summary = pd.DataFrame(rows)[['bot_name','total_closed','wins','losses','win_rate','realized_pnl','orphaned_qty','orphaned_cost_basis']].rename(columns={
