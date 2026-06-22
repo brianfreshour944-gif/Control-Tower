@@ -60,17 +60,15 @@ def sanitize_df(df):
     df = df.copy()
 
     # 1. Handle ID columns – ensure they are strings (and handle varying lengths)
-    id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']  # add any other identifier columns
+    id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']
     for col in id_columns:
         if col in df.columns:
-            # Convert to string, replace NaN with empty string
             df[col] = df[col].astype(str).fillna('')
 
     # 2. Convert object columns that look like numbers to float
     for col in df.columns:
         if df[col].dtype == 'object':
             try:
-                # Try to convert to numeric, but skip if it's a string column already handled
                 if col not in id_columns:
                     df[col] = pd.to_numeric(df[col], errors='ignore')
             except:
@@ -95,6 +93,8 @@ def main():
 
     if "auto_refresh" not in st.session_state: st.session_state.auto_refresh = False
     if "last_refresh" not in st.session_state: st.session_state.last_refresh = datetime.now()
+    if "confirm_clear_errors" not in st.session_state:  # <-- ADDED
+        st.session_state.confirm_clear_errors = False   # <-- ADDED
 
     # Sidebar
     with st.sidebar:
@@ -146,7 +146,6 @@ def main():
 
     # ---- Load data ----
     trades_df = db.load_trades()
-    # ===== 🛠️ DEBUG: Check which bots are loaded =====
     print("🔍 Bots in trades_df:", trades_df['bot_name'].unique().tolist())
 
     status_df = db.get_bot_status()
@@ -276,8 +275,6 @@ def main():
             st.dataframe(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']], use_container_width=True)
             sel_id = st.selectbox("Select order to cancel", live_orders['id'].tolist(), key="cancel_select")
             if st.button("Cancel Selected Order"):
-                # Cancellation requires trading clients – you may need to import them again
-                # For brevity, we skip the actual cancel code here but it's the same as original
                 st.warning("Cancellation code not implemented in this snippet – copy from original.")
         else:
             st.success("No live open orders.")
@@ -294,7 +291,6 @@ def main():
             c4.metric("Total Fees", f"${m['Total Fees (USD)']:,.2f}")
             st.metric("Sharpe Ratio", m['Sharpe Ratio (daily)'])
             st.metric("Max Drawdown", f"{m['Max Drawdown (%)']}%")
-            # Cumulative plot
             df_eq = trades_df.copy()
             df_eq['timestamp'] = pd.to_datetime(df_eq['timestamp'])
             df_eq = df_eq.sort_values('timestamp')
@@ -305,9 +301,33 @@ def main():
         else:
             st.info("No trade data yet.")
 
-    # === TAB 5: ERROR LOG ===
+    # === TAB 5: ERROR LOG (UPDATED WITH CLEAR BUTTON) ===
     with tab5:
         st.subheader("🚨 Error Observatory")
+
+        # --- Clear Errors Button (with confirmation) ---
+        col1, col2 = st.columns([3, 1])
+        with col2:
+            if st.button("🗑️ Clear All Errors", type="secondary", use_container_width=True):
+                st.session_state.confirm_clear_errors = True
+
+        if st.session_state.get("confirm_clear_errors", False):
+            st.warning("⚠️ Are you sure you want to DELETE ALL error logs?")
+            st.warning("This action **cannot be undone**.")
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("✅ YES, Delete All", type="primary", use_container_width=True):
+                    db.clear_errors()
+                    st.success("✅ All errors cleared!")
+                    st.session_state.confirm_clear_errors = False
+                    st.rerun()
+            with c2:
+                if st.button("❌ Cancel", use_container_width=True):
+                    st.session_state.confirm_clear_errors = False
+                    st.rerun()
+            st.divider()
+
+        # --- Display Errors ---
         if not error_df.empty:
             st.dataframe(error_df, use_container_width=True)
         else:
@@ -321,10 +341,7 @@ def main():
         if trades_df.empty:
             st.info("No trade data yet.")
         else:
-            # Show all bot names from trades (for debugging)
             st.write("✅ Bots in trade history:", trades_df['bot_name'].unique().tolist())
-            
-            # Try to get FIFO stats
             fifo = strat.fifo_stats_all_bots(trades_df)
             
             if not fifo:
@@ -357,7 +374,6 @@ def main():
                             st.info(f"📦 Open Inventory: {stats['orphaned_qty']:.6f} units | Cost basis: ${stats['orphaned_cost_basis']:,.2f} | This is unsold inventory — NOT a realized loss.")
                         else:
                             st.success("✅ All positions closed — clean state")
-                # Charts
                 chart_data = pd.DataFrame(list(fifo.values()))
                 st.plotly_chart(px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot (FIFO closed trades only)", color='realized_pnl', color_continuous_scale='RdYlGn'), use_container_width=True)
                 fig_wl = go.Figure()
@@ -443,7 +459,6 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             if daily_df.empty:
                 st.info("No daily data.")
             else:
-                # ---- Bar chart ----
                 fig = px.bar(
                     daily_df,
                     x='date',
@@ -455,7 +470,6 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
-                # ---- Pivot table ----
                 pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
                 st.dataframe(
                     pivot.style.format("{:,.2f}").map(
@@ -465,7 +479,6 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     use_container_width=True
                 )
 
-                # ---- Total per bot ----
                 st.subheader("Total Realized P&L per Bot (from daily aggregation)")
                 total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                 total_per_bot.columns = ['bot_name', 'Total P&L']
