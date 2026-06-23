@@ -22,44 +22,115 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ========== SOFT DARK CSS (GitHub-Inspired) ==========
+# ========== SOFT DARK CSS (GitHub-Inspired, Calm & Readable) ==========
 st.markdown("""
 <style>
-    /* 1. Global Page Background - Set to deepest dark */
-    .stApp, .main, [data-testid="stAppViewContainer"] {
-        background-color: #0B0E14 !important;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    /* ----- Ergonomic Background ----- */
+    .stApp, .main {
+        background-color: #0d1117 !important;
+        color: #c9d1d9 !important;
     }
 
-    /* 2. Force Sidebar to match */
-    [data-testid="stSidebar"] {
-        background-color: #0B0E14 !important;
-        border-right: 1px solid #1E293B !important;
+    /* ----- Soft Glassmorphism Metric Cards ----- */
+    .custom-metric {
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 12px !important;
+        padding: 1.2rem !important;
+        text-align: center;
+        transition: border-color 0.2s;
+    }
+    .custom-metric:hover {
+        border-color: #58a6ff !important;
+    }
+    .custom-metric-label {
+        color: #8b949e !important;
+        font-size: 0.7rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+    .custom-metric-value {
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #e6edf3 !important;
     }
 
-    /* 3. Force all Input Boxes and Selectboxes to Dark */
-    .stTextInput > div > div > input, 
-    .stNumberInput > div > div > input, 
-    .stSelectbox > div > div {
-        background-color: #151921 !important;
-        color: #E2E8F0 !important;
-        border: 1px solid #334155 !important;
+    /* ----- Readable P&L Colors ----- */
+    .profit { color: #3fb950 !important; }
+    .loss { color: #f85149 !important; }
+
+    /* ----- Headings ----- */
+    h1, h2, h3 {
+        color: #e6edf3 !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Tables & Grids ----- */
+    .ag-theme-alpine-dark {
+        --ag-background-color: #0d1117 !important;
+        --ag-header-background-color: #161b22 !important;
+        --ag-foreground-color: #c9d1d9 !important;
+        --ag-border-color: #30363d !important;
+    }
+
+    /* ----- Buttons ----- */
+    .stButton>button {
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        background: #21262d !important;
+        color: #c9d1d9 !important;
+        border: 1px solid #30363d !important;
+        transition: all 0.15s;
+    }
+    .stButton>button:hover {
+        border-color: #58a6ff !important;
+        background: #1c2333 !important;
+    }
+
+    /* ----- Progress Bar ----- */
+    .stProgress > div > div > div > div {
+        background: #58a6ff !important;
+    }
+
+    /* ----- Select / Input ----- */
+    .stSelectbox, .stTextInput, .stNumberInput {
+        background: #0d1117 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 6px !important;
+        color: #c9d1d9 !important;
+    }
+
+    /* ----- Sidebar ----- */
+    .stSidebar {
+        background: #0d1117 !important;
+        border-right: 1px solid #30363d !important;
+    }
+
+    /* ----- Alert boxes ----- */
+    .stAlert {
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
         border-radius: 8px !important;
     }
 
-    /* 4. Fix the Metrics area and text colors */
-    [data-testid="stMetricValue"], [data-testid="stMetricLabel"], h1, h2, h3, p, span {
-        color: #E2E8F0 !important;
+    /* ----- Cash Flow Banner ----- */
+    .cash-flow-banner {
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1.5rem !important;
+        margin-bottom: 0.5rem;
+        color: #c9d1d9 !important;
     }
 
-    /* 5. Force the "Canvas" area to be transparent */
-    [data-testid="stVerticalBlock"] {
-        background-color: transparent !important;
-    }
-
-    /* 6. Clean up the Sidebar text */
-    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
-        color: #94A3B8 !important;
-    }
+    /* ----- Scrollbar ----- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
 </style>
 """, unsafe_allow_html=True)
 
