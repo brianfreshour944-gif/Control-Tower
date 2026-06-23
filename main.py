@@ -733,6 +733,175 @@ st.markdown("""
         border: 1px solid #1E293B !important;
     }
 
+    /* ----- Streamlit Dataframe Table Styling ----- */
+    [data-testid="stDataFrame"] table {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Header Styling ----- */
+    [data-testid="stDataFrame"] th {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+        border: 1px solid #1E293B !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Streamlit Dataframe Cell Styling ----- */
+    [data-testid="stDataFrame"] td {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Row Styling ----- */
+    [data-testid="stDataFrame"] tr {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Dataframe Hover Styling ----- */
+    [data-testid="stDataFrame"] tr:hover {
+        background-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Container Styling ----- */
+    [data-testid="stDataFrame"] .dataframe-container {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Streamlit Dataframe Scrollable Area ----- */
+    [data-testid="stDataFrame"] .dataframe-scrollable {
+        background-color: #151A24 !important;
+    }
+
+    /* ----- Streamlit Dataframe Table Wrapper ----- */
+    [data-testid="stDataFrame"] .dataframe-table {
+        background-color: #151A24 !important;
+    }
+
+    /* ----- Streamlit Dataframe Header Wrapper ----- */
+    [data-testid="stDataFrame"] .dataframe-header {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Dataframe Body Wrapper ----- */
+    [data-testid="stDataFrame"] .dataframe-body {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Dataframe Cell Content ----- */
+    [data-testid="stDataFrame"] .dataframe-cell {
+        color: #E2E8F0 !important;
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Dataframe Even Rows ----- */
+    [data-testid="stDataFrame"] .dataframe-even {
+        background-color: #0B0E14 !important;
+    }
+
+    /* ----- Streamlit Dataframe Odd Rows ----- */
+    [data-testid="stDataFrame"] .dataframe-odd {
+        background-color: #151A24 !important;
+    }
+
+    /* ----- Streamlit Dataframe Selected Cell ----- */
+    [data-testid="stDataFrame"] .dataframe-selected {
+        background-color: #38BDF820 !important;
+        border: 1px solid #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Dataframe Force Dark Theme ----- */
+    [data-testid="stDataFrame"] * {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Specific Element Overrides ----- */
+    [data-testid="stDataFrame"] div,
+    [data-testid="stDataFrame"] span,
+    [data-testid="stDataFrame"] p,
+    [data-testid="stDataFrame"] a,
+    [data-testid="stDataFrame"] button,
+    [data-testid="stDataFrame"] input,
+    [data-testid="stDataFrame"] select,
+    [data-testid="stDataFrame"] textarea {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Scrollbar ----- */
+    [data-testid="stDataFrame"] ::-webkit-scrollbar {
+        width: 8px !important;
+        height: 8px !important;
+    }
+
+    [data-testid="stDataFrame"] ::-webkit-scrollbar-track {
+        background: #0B0E14 !important;
+    }
+
+    [data-testid="stDataFrame"] ::-webkit-scrollbar-thumb {
+        background: #1E293B !important;
+        border-radius: 4px !important;
+    }
+
+    [data-testid="stDataFrame"] ::-webkit-scrollbar-thumb:hover {
+        background: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Dataframe Inline Styles Override ----- */
+    [data-testid="stDataFrame"] [style*="background-color: white"],
+    [data-testid="stDataFrame"] [style*="background-color: #fff"],
+    [data-testid="stDataFrame"] [style*="background-color: #ffffff"],
+    [data-testid="stDataFrame"] [style*="background: white"],
+    [data-testid="stDataFrame"] [style*="background: #fff"],
+    [data-testid="stDataFrame"] [style*="background: #ffffff"] {
+        background-color: #151A24 !important;
+        background: #151A24 !important;
+    }
+
+    /* ----- Streamlit Dataframe Inline Color Override ----- */
+    [data-testid="stDataFrame"] [style*="color: white"],
+    [data-testid="stDataFrame"] [style*="color: #fff"],
+    [data-testid="stDataFrame"] [style*="color: #ffffff"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Dataframe Inline Border Override ----- */
+    [data-testid="stDataFrame"] [style*="border-color: white"],
+    [data-testid="stDataFrame"] [style*="border-color: #fff"],
+    [data-testid="stDataFrame"] [style*="border-color: #ffffff"] {
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Class Overrides ----- */
+    [data-testid="stDataFrame"] .white,
+    [data-testid="stDataFrame"] .light,
+    [data-testid="stDataFrame"] .bg-white,
+    [data-testid="stDataFrame"] .background-white {
+        background-color: #151A24 !important;
+    }
+
+    [data-testid="stDataFrame"] .text-white,
+    [data-testid="stDataFrame"] .color-white {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Dataframe ID Overrides ----- */
+    [data-testid="stDataFrame"] #white,
+    [data-testid="stDataFrame"] #light,
+    [data-testid="stDataFrame"] #bg-white {
+        background-color: #151A24 !important;
+    }
+
     /* ----- Streamlit JSON Overrides ----- */
     [data-testid="stJson"] {
         background-color: #151A24 !important;
