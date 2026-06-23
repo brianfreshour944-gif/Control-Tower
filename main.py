@@ -22,8 +22,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ========== NEON AURORA CSS ==========
-st.markdown("""
+# ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -76,6 +75,62 @@ st.markdown("""
         --ag-foreground-color: #c9d1d9 !important;
         --ag-border-color: #30363d !important;
     }
+
+    /* ----- Buttons ----- */
+    .stButton>button {
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        background: #21262d !important;
+        color: #c9d1d9 !important;
+        border: 1px solid #30363d !important;
+        transition: all 0.15s;
+    }
+    .stButton>button:hover {
+        border-color: #58a6ff !important;
+        background: #1c2333 !important;
+    }
+
+    /* ----- Progress Bar ----- */
+    .stProgress > div > div > div > div {
+        background: #58a6ff !important;
+    }
+
+    /* ----- Select / Input ----- */
+    .stSelectbox, .stTextInput, .stNumberInput {
+        background: #0d1117 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 6px !important;
+        color: #c9d1d9 !important;
+    }
+
+    /* ----- Sidebar ----- */
+    .stSidebar {
+        background: #0d1117 !important;
+        border-right: 1px solid #30363d !important;
+    }
+
+    /* ----- Alert boxes ----- */
+    .stAlert {
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Cash Flow Banner ----- */
+    .cash-flow-banner {
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1.5rem !important;
+        margin-bottom: 0.5rem;
+        color: #c9d1d9 !important;
+    }
+
+    /* ----- Scrollbar ----- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -89,7 +144,7 @@ def metric_box(label, content_html):
     return f'<div class="custom-metric"><div class="custom-metric-label">{label}</div>{content_html}</div>'
 
 def white_val(value, fmt="${:,.2f}"):
-    return f'<div class="custom-metric-value" style="color:#fff">{fmt.format(value)}</div>'
+    return f'<div class="custom-metric-value" style="color:#e6edf3">{fmt.format(value)}</div>'
 
 # ---------- Data Sanitizer ----------
 def sanitize_df(df):
@@ -154,20 +209,20 @@ def main():
             default_index=0,
             styles={
                 "container": {"padding": "0!important", "background-color": "transparent"},
-                "icon": {"color": "#00b4d8", "font-size": "18px"},
+                "icon": {"color": "#58a6ff", "font-size": "18px"},
                 "nav-link": {
                     "font-size": "14px",
                     "text-align": "left",
                     "margin": "2px 0px",
                     "border-radius": "6px",
                     "padding": "8px 12px",
-                    "color": "#8b92a8",
+                    "color": "#8b949e",
                 },
                 "nav-link-selected": {
-                    "background-color": "#1a2a3a",
-                    "color": "#ffffff",
+                    "background-color": "#161b22",
+                    "color": "#e6edf3",
                     "font-weight": "600",
-                    "border-left": "3px solid #00b4d8",
+                    "border-left": "3px solid #58a6ff",
                 },
             },
             key="menu_widget",
@@ -249,13 +304,13 @@ def main():
     with c5: st.markdown(metric_box("Active Bots", white_val(active_bots, "{:,.0f}")), unsafe_allow_html=True)
     with c6: st.markdown(metric_box("Portfolio Value", white_val(portfolio_val)), unsafe_allow_html=True)
 
-    flow_color = "#00ff9d" if daily_cash_flow >= 0 else "#ff4d4d"
+    flow_color = "#3fb950" if daily_cash_flow >= 0 else "#f85149"
     sign = "+" if daily_cash_flow >= 0 else ""
     st.markdown(
         f'<div class="cash-flow-banner">'
         f'📅 Today\'s cash flow: <span style="color:{flow_color};font-weight:600">'
         f'{sign}${daily_cash_flow:,.2f}</span> &nbsp;'
-        f'<span style="color:#8896b5;font-size:0.85rem">'
+        f'<span style="color:#8b949e;font-size:0.85rem">'
         f'(negative = buying inventory – held: ${inventory_cost:,.2f})</span>'
         f'</div>', unsafe_allow_html=True)
     st.divider()
@@ -324,8 +379,8 @@ def main():
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("unrealized_pl", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
@@ -440,8 +495,8 @@ def main():
                     gb.configure_pagination(paginationAutoPageSize=True)
                     gb.configure_column("Realized P&L", cellRenderer=JsCode("""
                         function(params) {
-                            if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                            else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                            if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
+                            else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                             else return '$0.00';
                         }
                     """))
@@ -508,8 +563,8 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("Live Net P&L", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
@@ -574,11 +629,11 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot", labels={'daily_pnl':'Daily P&L (USD)','date':'Date'}, barmode='group')
                     st.plotly_chart(fig, width='stretch')
                     pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
-                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff6b8a' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
+                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #3fb950' if v > 0 else 'color: #f85149' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
                     st.subheader("Total Realized P&L per Bot")
                     total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                     total_per_bot.columns = ['bot_name', 'Total P&L']
-                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff6b8a' if v < 0 else '', subset=['Total P&L']), width='stretch')
+                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #3fb950' if v > 0 else 'color: #f85149' if v < 0 else '', subset=['Total P&L']), width='stretch')
 
 if __name__ == "__main__":
     main()
