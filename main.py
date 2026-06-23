@@ -86,7 +86,6 @@ st.markdown("""
         transform: scale(1.02);
         border-color: #00b4d8 !important;
     }
-    /* AgGrid dark theme override */
     .ag-theme-alpine-dark {
         --ag-background-color: #141824;
         --ag-header-background-color: #0e1117;
@@ -198,7 +197,7 @@ def main():
         st.divider()
         st.header("⚙️ Control Panel")
 
-        if st.button("🔄 Refresh All Data", use_container_width=True):
+        if st.button("🔄 Refresh All Data", width='stretch'):
             st.cache_data.clear()
             st.session_state.last_refresh = datetime.now()
             st.rerun()
@@ -211,24 +210,24 @@ def main():
         st.divider()
 
         # Reset Button
-        if st.button("🗑️ Reset All Trading Stats", type="secondary", use_container_width=True):
+        if st.button("🗑️ Reset All Trading Stats", type="secondary", width='stretch'):
             st.session_state.confirm_reset = True
         if st.session_state.confirm_reset:
             st.warning("⚠️ **ARE YOU SURE?** This will DELETE ALL TRADES!")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("✅ YES", type="primary", use_container_width=True):
+                if st.button("✅ YES", type="primary", width='stretch'):
                     db.reset_all_trading_stats()
                     st.success("✅ Reset complete!")
                     st.session_state.confirm_reset = False
                     st.rerun()
             with c2:
-                if st.button("❌ Cancel", use_container_width=True):
+                if st.button("❌ Cancel", width='stretch'):
                     st.session_state.confirm_reset = False
                     st.rerun()
         st.divider()
 
-        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", use_container_width=True):
+        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", width='stretch'):
             if st.checkbox("Confirm stop all bots"):
                 with db.get_db_engine().connect() as conn:
                     conn.execute(text("UPDATE bot_status SET status = 'STOP'"))
@@ -342,7 +341,7 @@ def main():
         with st.container():
             st.subheader("Live Portfolio & Unrealized P&L")
             if not df_pos.empty:
-                st.plotly_chart(px.pie(df_pos, values='market_value', names='symbol', hole=0.4, title="Asset Allocation"), use_container_width=True)
+                st.plotly_chart(px.pie(df_pos, values='market_value', names='symbol', hole=0.4, title="Asset Allocation"), width='stretch')
                 gb = GridOptionsBuilder.from_dataframe(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']])
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("unrealized_pl", cellRenderer=JsCode("""
@@ -404,7 +403,7 @@ def main():
                 df_eq = df_eq.sort_values('timestamp')
                 df_eq['net_cash'] = df_eq.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
                 df_eq['cum_pnl'] = df_eq['net_cash'].cumsum()
-                st.plotly_chart(px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow (sells - buys)"), use_container_width=True)
+                st.plotly_chart(px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow (sells - buys)"), width='stretch')
                 st.caption("Note: this chart goes negative when bots are accumulating inventory. That is expected for grid bots.")
             else:
                 st.info("No trade data yet.")
@@ -415,19 +414,19 @@ def main():
             st.subheader("🚨 Error Observatory")
             col1, col2 = st.columns([3, 1])
             with col2:
-                if st.button("🗑️ Clear All Errors", type="secondary", use_container_width=True):
+                if st.button("🗑️ Clear All Errors", type="secondary", width='stretch'):
                     st.session_state.confirm_clear_errors = True
             if st.session_state.get("confirm_clear_errors", False):
                 st.warning("⚠️ Are you sure you want to DELETE ALL error logs?")
                 c1, c2 = st.columns(2)
                 with c1:
-                    if st.button("✅ YES, Delete All", type="primary", use_container_width=True):
+                    if st.button("✅ YES, Delete All", type="primary", width='stretch'):
                         db.clear_errors()
                         st.success("✅ All errors cleared!")
                         st.session_state.confirm_clear_errors = False
                         st.rerun()
                 with c2:
-                    if st.button("❌ Cancel", use_container_width=True):
+                    if st.button("❌ Cancel", width='stretch'):
                         st.session_state.confirm_clear_errors = False
                         st.rerun()
                 st.divider()
@@ -452,7 +451,7 @@ def main():
                     st.warning("⚠️ FIFO stats returned empty. Showing raw trade summary instead.")
                     raw = trades_df.groupby('bot_name').agg({'side': 'count', 'value': 'sum'}).reset_index()
                     raw.columns = ['bot_name', 'Total Trades', 'Total Value']
-                    st.dataframe(raw.style.format({'Total Value': '${:,.2f}'}), use_container_width=True)
+                    st.dataframe(raw.style.format({'Total Value': '${:,.2f}'}), width='stretch')
                 else:
                     rows = list(fifo.values())
                     summary = pd.DataFrame(rows)[['bot_name','total_closed','wins','losses','win_rate','realized_pnl','orphaned_qty','orphaned_cost_basis']].rename(columns={
@@ -484,12 +483,12 @@ def main():
                             else:
                                 st.success("✅ All positions closed — clean state")
                     chart_data = pd.DataFrame(list(fifo.values()))
-                    st.plotly_chart(px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot", color='realized_pnl', color_continuous_scale='RdYlGn'), use_container_width=True)
+                    st.plotly_chart(px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot", color='realized_pnl', color_continuous_scale='RdYlGn'), width='stretch')
                     fig_wl = go.Figure()
                     fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#4ade80'))
                     fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#f87171'))
                     fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group')
-                    st.plotly_chart(fig_wl, use_container_width=True)
+                    st.plotly_chart(fig_wl, width='stretch')
 
     # ------------------------------------------------
     elif choice == "📜 Trade History":
@@ -548,11 +547,11 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 df['net_cash'] = df.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
                 df = df.sort_values(['bot_name','timestamp'])
                 df['cum_pnl'] = df.groupby('bot_name')['net_cash'].cumsum()
-                st.plotly_chart(px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow", labels={'cum_pnl':'Cash Flow (USD)'}), use_container_width=True)
+                st.plotly_chart(px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow", labels={'cum_pnl':'Cash Flow (USD)'}), width='stretch')
                 bots = df['bot_name'].unique().tolist()
                 sel = st.multiselect("Filter bots", bots, default=bots, key="bot_line_filter")
                 if sel:
-                    st.plotly_chart(px.line(df[df['bot_name'].isin(sel)], x='timestamp', y='cum_pnl', color='bot_name', title="Filtered"), use_container_width=True)
+                    st.plotly_chart(px.line(df[df['bot_name'].isin(sel)], x='timestamp', y='cum_pnl', color='bot_name', title="Filtered"), width='stretch')
             else:
                 st.info("No trade data yet.")
 
@@ -577,7 +576,7 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     grid_options = gb.build()
                     AgGrid(debug_df, gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True)
                     debug_df['cum_pnl'] = debug_df['pnl'].cumsum()
-                    st.plotly_chart(px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L"), use_container_width=True)
+                    st.plotly_chart(px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L"), width='stretch')
 
     # ------------------------------------------------
     elif choice == "📊 Daily P&L per Bot":
@@ -592,13 +591,13 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     st.info("No daily data.")
                 else:
                     fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot", labels={'daily_pnl':'Daily P&L (USD)','date':'Date'}, barmode='group')
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
                     pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
-                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=pd.IndexSlice[:, :]), use_container_width=True)
+                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
                     st.subheader("Total Realized P&L per Bot")
                     total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                     total_per_bot.columns = ['bot_name', 'Total P&L']
-                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=['Total P&L']), use_container_width=True)
+                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=['Total P&L']), width='stretch')
 
 if __name__ == "__main__":
     main()
