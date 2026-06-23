@@ -1,4 +1,3 @@
-
 # main.py
 import streamlit as st
 import pandas as pd
@@ -190,10 +189,8 @@ def main():
                     "border-left": "3px solid #00b4d8",
                 },
             },
-            key="menu_widget",   # <-- changed key name to avoid conflict
+            key="menu_widget",
         )
-
-        # No assignment to session_state - use the local variable directly
 
         st.divider()
         st.header("⚙️ Control Panel")
@@ -283,7 +280,7 @@ def main():
     st.divider()
 
     # ====== RENDER CONTENT BASED ON MENU CHOICE ======
-    choice = menu_choice   # using the local variable
+    choice = menu_choice
 
     # ------------------------------------------------
     if choice == "🤖 Bot Control":
@@ -327,7 +324,7 @@ def main():
                         st.rerun()
                 except:
                     st.warning("No valid config JSON")
-                # Use AgGrid for bot status table
+                # AgGrid without JsCode – no allow_unsafe needed
                 gb = GridOptionsBuilder.from_dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']])
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_default_column(editable=False, filter=True, sortable=True)
@@ -354,7 +351,8 @@ def main():
                 """))
                 grid_options = gb.build()
                 AgGrid(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']],
-                       gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True)
+                       gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True,
+                       allow_unsafe_jscode=True)  # <-- FIXED
                 st.metric("Total Portfolio Value", f"${df_pos['market_value'].sum():,.2f}", delta=f"${df_pos['unrealized_pl'].sum():,.2f} unrealized")
             else:
                 st.info("No open positions found.")
@@ -468,7 +466,8 @@ def main():
                         }
                     """))
                     grid_options = gb.build()
-                    AgGrid(summary, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True)
+                    AgGrid(summary, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
+                           allow_unsafe_jscode=True)  # <-- FIXED
                     st.divider()
                     for bot_name, stats in fifo.items():
                         pnl = stats['realized_pnl']
@@ -535,7 +534,8 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     }
                 """))
                 grid_options = gb.build()
-                AgGrid(ren, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True)
+                AgGrid(ren, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
+                       allow_unsafe_jscode=True)  # <-- FIXED
 
     # ------------------------------------------------
     elif choice == "📈 Bot P&L Comparison":
