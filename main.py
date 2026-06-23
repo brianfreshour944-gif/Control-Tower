@@ -1,3 +1,4 @@
+
 # main.py
 import streamlit as st
 import pandas as pd
@@ -143,7 +144,6 @@ def main():
     if "last_refresh" not in st.session_state: st.session_state.last_refresh = datetime.now()
     if "confirm_clear_errors" not in st.session_state: st.session_state.confirm_clear_errors = False
     if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
-    if "menu_choice" not in st.session_state: st.session_state.menu_choice = "Bot Control"
 
     # ====== SIDEBAR (with Option Menu) ======
     with st.sidebar:
@@ -190,9 +190,10 @@ def main():
                     "border-left": "3px solid #00b4d8",
                 },
             },
-            key="menu_choice",
+            key="menu_widget",   # <-- changed key name to avoid conflict
         )
-        st.session_state.menu_choice = menu_choice
+
+        # No assignment to session_state - use the local variable directly
 
         st.divider()
         st.header("⚙️ Control Panel")
@@ -282,7 +283,7 @@ def main():
     st.divider()
 
     # ====== RENDER CONTENT BASED ON MENU CHOICE ======
-    choice = st.session_state.menu_choice
+    choice = menu_choice   # using the local variable
 
     # ------------------------------------------------
     if choice == "🤖 Bot Control":
