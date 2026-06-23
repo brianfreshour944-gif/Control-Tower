@@ -1670,28 +1670,30 @@ def main():
                     st.rerun()
 
     # ---- Load data ----
-    trades_df = db.load_trades()
-    status_df = db.get_bot_status()
-    error_df = db.load_errors()
-    df_pos = db.get_unified_portfolio()
-    live_orders = db.get_live_exchange_orders()
-    backtest_df = db.get_backtest_results()
-    db_orders = db.get_open_orders_from_db()trades_df = db.load_trades()
-# ... other loads ...
+    # ---- Load data ----
+trades_df = db.load_trades()
+status_df = db.get_bot_status()
+error_df = db.load_errors()
+df_pos = db.get_unified_portfolio()
+live_orders = db.get_live_exchange_orders()
+backtest_df = db.get_backtest_results()
+db_orders = db.get_open_orders_from_db()
 
-# 👇 DEBUG
-st.sidebar.write("### 📊 Debug")
+# ===== DEBUG: Check row counts =====
+st.sidebar.write("### 📊 Debug Info")
 st.sidebar.write(f"Trades loaded: {len(trades_df)}")
+st.sidebar.write(f"Open Orders (DB): {len(db_orders)}")
+st.sidebar.write(f"Backtest Results: {len(backtest_df)}")
+st.sidebar.write(f"Bot Status: {len(status_df)}")
 
-
-    # Apply sanitizer to all DataFrames
-    trades_df = sanitize_df(trades_df)
-    status_df = sanitize_df(status_df)
-    error_df = sanitize_df(error_df)
-    df_pos = sanitize_df(df_pos)
-    live_orders = sanitize_df(live_orders)
-    backtest_df = sanitize_df(backtest_df)
-    db_orders = sanitize_df(db_orders)
+# Apply sanitizer to all DataFrames
+trades_df = sanitize_df(trades_df)
+status_df = sanitize_df(status_df)
+error_df = sanitize_df(error_df)
+df_pos = sanitize_df(df_pos)
+live_orders = sanitize_df(live_orders)
+backtest_df = sanitize_df(backtest_df)
+db_orders = sanitize_df(db_orders)
 
     # ---- Compute metrics ----
     fifo = strat.fifo_stats_all_bots(trades_df)
