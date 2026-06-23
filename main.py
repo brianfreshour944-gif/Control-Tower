@@ -22,78 +22,242 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ========== PROFESSIONAL CSS ==========
+# ========== NEON AURORA CSS ==========
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
-    
-    html, body, .stApp {
-        font-family: 'Inter', sans-serif;
-        background-color: #0a0c10;
+    /* ----- Font ----- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+
+    /* ----- Main Background (Deep Space Gradient) ----- */
+    .stApp, .main {
+        background: radial-gradient(ellipse at 20% 50%, #0f1a2e 0%, #080c18 100%) !important;
     }
-    .main {
-        background: radial-gradient(circle at 10% 20%, #141824, #0a0c10 80%);
-    }
+
+    /* ----- Glassmorphism Metric Cards ----- */
     .custom-metric {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.07) !important;
         border-radius: 16px !important;
-        padding: 1.2rem !important;
+        padding: 1.4rem 1rem !important;
         text-align: center;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        transition: all 0.25s ease-in-out;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+    /* Glow border on hover */
+    .custom-metric::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), rgba(150, 80, 255, 0.1));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .custom-metric:hover::before {
+        opacity: 1;
     }
     .custom-metric:hover {
-        border-color: #00b4d8 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 40px rgba(0, 180, 216, 0.15);
+        transform: translateY(-3px);
+        border-color: rgba(0, 180, 216, 0.2) !important;
+        box-shadow: 0 12px 48px rgba(0, 180, 216, 0.08);
     }
+
     .custom-metric-label {
-        color: #8b92a8 !important;
-        font-size: 0.8rem !important;
+        color: #8896b5 !important;
+        font-size: 0.75rem !important;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
         font-weight: 600;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.4rem;
     }
     .custom-metric-value {
         font-size: 2rem !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
     }
-    .profit { color: #00f5a0 !important; }
-    .loss { color: #ff6b6b !important; }
-    .stSidebar {
-        background-color: #0e1117 !important;
-        border-right: 1px solid rgba(255,255,255,0.03) !important;
+
+    /* ----- Profit / Loss Colors (Vibrant) ----- */
+    .profit {
+        color: #00f5a0 !important;
+        text-shadow: 0 0 20px rgba(0, 245, 160, 0.15);
     }
+    .loss {
+        color: #ff6b8a !important;
+        text-shadow: 0 0 20px rgba(255, 107, 138, 0.15);
+    }
+
+    /* ----- Sidebar (Dark Blue) ----- */
+    .stSidebar, .css-1d391kg {
+        background: rgba(10, 18, 36, 0.92) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    }
+    .stSidebar h1, .stSidebar h2, .stSidebar h3 {
+        color: #e8edf5 !important;
+    }
+
+    /* ----- Headings (Gradient Cyan to Purple) ----- */
     h1 {
         font-weight: 700 !important;
-        background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
         font-size: 2.5rem !important;
+        letter-spacing: -0.02em;
     }
+    h2, h3, .stSubheader {
+        color: #e0e8f5 !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Buttons (Neon Accents) ----- */
     .stButton>button {
         border-radius: 8px !important;
         font-weight: 500 !important;
-        transition: all 0.15s ease;
-        border: 1px solid rgba(255,255,255,0.05);
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.04) !important;
+        color: #c8d6e8 !important;
     }
     .stButton>button:hover {
         transform: scale(1.02);
-        border-color: #00b4d8 !important;
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 24px rgba(0, 212, 255, 0.1);
+        background: rgba(0, 212, 255, 0.06) !important;
     }
-    .ag-theme-alpine-dark {
-        --ag-background-color: #141824;
-        --ag-header-background-color: #0e1117;
-        --ag-border-color: #2a2f3a;
-        --ag-foreground-color: #e0e4ed;
+    .stButton>button:active {
+        transform: scale(0.98);
     }
+    .stButton>button[kind="primary"] {
+        background: linear-gradient(135deg, #00b4d8, #7c3aed) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    .stButton>button[kind="primary"]:hover {
+        box-shadow: 0 0 32px rgba(124, 58, 237, 0.25) !important;
+        transform: scale(1.02);
+    }
+
+    /* ----- Progress Bar (Gradient) ----- */
     .stProgress > div > div > div > div {
-        background-color: #00b4d8 !important;
+        background: linear-gradient(90deg, #00d4ff, #7c3aed) !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- DataFrames & Tables ----- */
+    .stDataFrame, .stTable {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    }
+
+    /* ----- AgGrid Theme Override ----- */
+    .ag-theme-alpine-dark {
+        --ag-background-color: rgba(12, 20, 40, 0.8) !important;
+        --ag-header-background-color: rgba(0, 10, 30, 0.6) !important;
+        --ag-border-color: rgba(255, 255, 255, 0.06) !important;
+        --ag-foreground-color: #d0dcec !important;
+        --ag-row-hover-color: rgba(0, 212, 255, 0.05) !important;
+        --ag-selected-row-background-color: rgba(124, 58, 237, 0.08) !important;
+        --ag-font-family: 'Inter', sans-serif !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    }
+
+    /* ----- Metric Cards (Streamlit native) ----- */
+    [data-testid="stMetricValue"] {
+        color: #e8edf5 !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stMetricDelta"] {
+        font-weight: 500 !important;
+    }
+
+    /* ----- Tabs / Expanders ----- */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        padding: 4px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 8px 16px;
+        color: #8896b5 !important;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .stTabs [aria-selected="true"] {
+        background: rgba(0, 212, 255, 0.08) !important;
+        color: #00d4ff !important;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ----- Expanders ----- */
+    .streamlit-expanderHeader {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        color: #c8d6e8 !important;
+    }
+
+    /* ----- Select Boxes, Inputs ----- */
+    .stSelectbox, .stTextInput, .stNumberInput {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        color: #e0e8f5 !important;
+    }
+
+    /* ----- Scrollbar ----- */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 212, 255, 0.2);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 212, 255, 0.4);
+    }
+
+    /* ----- "Today's Cash Flow" Banner ----- */
+    .cash-flow-banner {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
+        margin-bottom: 0.5rem;
+        color: #c8d6e8 !important;
+    }
+
+    /* ----- Alert boxes ----- */
+    .stAlert {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(4px);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -271,10 +435,10 @@ def main():
     flow_color = "#00ff9d" if daily_cash_flow >= 0 else "#ff4d4d"
     sign = "+" if daily_cash_flow >= 0 else ""
     st.markdown(
-        f'<div style="background:#1a1f2e;border-radius:8px;padding:0.5rem 1rem;margin-bottom:0.5rem;">'
+        f'<div class="cash-flow-banner">'
         f'📅 Today\'s cash flow: <span style="color:{flow_color};font-weight:600">'
         f'{sign}${daily_cash_flow:,.2f}</span> &nbsp;'
-        f'<span style="color:#888;font-size:0.85rem">'
+        f'<span style="color:#8896b5;font-size:0.85rem">'
         f'(negative = buying inventory – held: ${inventory_cost:,.2f})</span>'
         f'</div>', unsafe_allow_html=True)
     st.divider()
@@ -324,7 +488,6 @@ def main():
                         st.rerun()
                 except:
                     st.warning("No valid config JSON")
-                # AgGrid without JsCode – no allow_unsafe needed
                 gb = GridOptionsBuilder.from_dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']])
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_default_column(editable=False, filter=True, sortable=True)
@@ -345,14 +508,14 @@ def main():
                 gb.configure_column("unrealized_pl", cellRenderer=JsCode("""
                     function(params) {
                         if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
                 grid_options = gb.build()
                 AgGrid(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']],
                        gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True,
-                       allow_unsafe_jscode=True)  # <-- FIXED
+                       allow_unsafe_jscode=True)
                 st.metric("Total Portfolio Value", f"${df_pos['market_value'].sum():,.2f}", delta=f"${df_pos['unrealized_pl'].sum():,.2f} unrealized")
             else:
                 st.info("No open positions found.")
@@ -461,13 +624,13 @@ def main():
                     gb.configure_column("Realized P&L", cellRenderer=JsCode("""
                         function(params) {
                             if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                            else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                            else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                             else return '$0.00';
                         }
                     """))
                     grid_options = gb.build()
                     AgGrid(summary, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
-                           allow_unsafe_jscode=True)  # <-- FIXED
+                           allow_unsafe_jscode=True)
                     st.divider()
                     for bot_name, stats in fifo.items():
                         pnl = stats['realized_pnl']
@@ -529,13 +692,13 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 gb.configure_column("Live Net P&L", cellRenderer=JsCode("""
                     function(params) {
                         if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#ff6b8a;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
                 grid_options = gb.build()
                 AgGrid(ren, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
-                       allow_unsafe_jscode=True)  # <-- FIXED
+                       allow_unsafe_jscode=True)
 
     # ------------------------------------------------
     elif choice == "📈 Bot P&L Comparison":
@@ -594,11 +757,11 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot", labels={'daily_pnl':'Daily P&L (USD)','date':'Date'}, barmode='group')
                     st.plotly_chart(fig, width='stretch')
                     pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
-                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
+                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff6b8a' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
                     st.subheader("Total Realized P&L per Bot")
                     total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                     total_per_bot.columns = ['bot_name', 'Total P&L']
-                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff4d4d' if v < 0 else '', subset=['Total P&L']), width='stretch')
+                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00ff9d' if v > 0 else 'color: #ff6b8a' if v < 0 else '', subset=['Total P&L']), width='stretch')
 
 if __name__ == "__main__":
     main()
