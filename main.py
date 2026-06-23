@@ -1553,53 +1553,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- Data Sanitization ----------
-def sanitize_df(df):
-    """
-    Sanitize DataFrame to handle PyArrow ID column issues and mixed data types.
-    Specifically handles the issue where ID columns have mixed-length strings
-    that cause PyArrow conversion errors.
-    """
-    if df.empty:
-        return df
-
-    df = df.copy()
-
-    # Handle ID columns - keep as strings to avoid PyArrow fixed-length issues
-    id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']
-    for col in id_columns:
-        if col in df.columns:
-            # Convert to string and fill NA values
-            df[col] = df[col].astype(str).fillna('')
-            # Ensure no mixed types by explicitly setting as object/string
-            df[col] = df[col].apply(lambda x: str(x) if pd.notna(x) else '')
-
-    # Handle numeric conversion for non-ID columns
-    for col in df.columns:
-        if col not in id_columns and df[col].dtype == 'object':
-            try:
-                # Try to convert to numeric, but keep as object if it fails
-                converted = pd.to_numeric(df[col], errors='coerce')
-                if not converted.isna().all():  # If conversion was successful for some values
-                    df[col] = converted.fillna(0).astype('float64')
-            except:
-                # If conversion fails completely, keep as string
-                df[col] = df[col].astype(str).fillna('')
-
-    # Handle datetime columns
-    for col in df.columns:
-        if 'time' in col.lower() or 'date' in col.lower():
-            df[col] = pd.to_datetime(df[col], errors='coerce')
-
-    # Fill any remaining NA values
-    for col in df.columns:
-        if pd.api.types.is_numeric_dtype(df[col]):
-            df[col] = df[col].fillna(0)
-        else:
-            df[col] = df[col].fillna('')
-
-    return df
-
 # ---------- UI Helpers ----------
 def colored_pnl(value):
     cls = "profit" if value >= 0 else "loss"
@@ -1625,6 +1578,38 @@ def style_plotly_fig(fig):
     )
     return fig
 
+# ---------- Data Sanitizer (fixed for ID columns) ----------
+def sanitize_df(df):
+    if df.empty:
+        return df
+    df = df.copy()
+
+    # Force ID columns to be plain strings (no fixed length)
+    id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']
+    for col in id_columns:
+        if col in df.columns:
+            df[col] = df[col].astype(str).fillna('').astype('string')
+
+    # Convert other object columns to numeric if possible
+    for col in df.columns:
+        if df[col].dtype == 'object' and col not in id_columns:
+            try:
+                df[col] = pd.to_numeric(df[col], errors='ignore')
+            except:
+                pass
+
+    # Fill NaN in numeric columns with 0 and convert to float64
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            df[col] = df[col].fillna(0).astype('float64')
+
+    # Convert timestamp columns
+    for col in df.columns:
+        if 'time' in col.lower() or 'date' in col.lower():
+            df[col] = pd.to_datetime(df[col], errors='coerce')
+
+    return df
+
 # ---------- Main ----------
 def main():
     st.title("🚀 Trading Command Center")
@@ -1636,7 +1621,7 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("⚙️ Control Panel")
-        if st.button("🔄 Refresh All Data", use_container_width=True):
+        if st.button("🔄 Refresh All Data", width='stretch'):
             st.cache_data.clear()
             st.session_state.last_refresh = datetime.now()
             st.rerun()
@@ -1646,33 +1631,33 @@ def main():
             st.rerun()
         st.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
         st.divider()
-        
-        if st.button("🗑️ Reset All Trading Stats", type="secondary", use_container_width=True):
+
+        if st.button("🗑️ Reset All Trading Stats", type="secondary", width='stretch'):
             st.session_state.show_reset_confirm = True
 
         if st.session_state.get("show_reset_confirm"):
             st.warning("⚠️ Are you sure? This will DELETE all trades and reset daily loss.")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("✅ Yes, Reset Everything", type="primary", use_container_width=True):
+                if st.button("✅ Yes, Reset Everything", type="primary", width='stretch'):
                     db.reset_all_trading_stats()
                     st.session_state.show_reset_confirm = False
                     st.rerun()
             with c2:
-                if st.button("❌ Cancel", key="cancel_reset", use_container_width=True):
+                if st.button("❌ Cancel", key="cancel_reset", width='stretch'):
                     st.session_state.show_reset_confirm = False
                     st.rerun()
 
         st.divider()
-        
-        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", use_container_width=True):
+
+        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", width='stretch'):
             st.session_state.show_stop_confirm = True
 
         if st.session_state.get("show_stop_confirm"):
             st.error("🚨 STOP ALL BOTS?")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("🛑 YES, STOP ALL", type="primary", use_container_width=True):
+                if st.button("🛑 YES, STOP ALL", type="primary", width='stretch'):
                     with db.get_db_engine().connect() as conn:
                         conn.execute(text("UPDATE bot_status SET status = 'STOP'"))
                         conn.commit()
@@ -1680,18 +1665,27 @@ def main():
                     st.success("All bots stopped")
                     st.rerun()
             with c2:
-                if st.button("❌ Cancel", key="cancel_stop", use_container_width=True):
+                if st.button("❌ Cancel", key="cancel_stop", width='stretch'):
                     st.session_state.show_stop_confirm = False
                     st.rerun()
 
     # ---- Load data ----
-    trades_df = sanitize_df(db.load_trades())
-    status_df = sanitize_df(db.get_bot_status())
-    error_df = sanitize_df(db.load_errors())
-    df_pos = sanitize_df(db.get_unified_portfolio())
-    live_orders = sanitize_df(db.get_live_exchange_orders())
-    backtest_df = sanitize_df(db.get_backtest_results())
-    db_orders = sanitize_df(db.get_open_orders_from_db())
+    trades_df = db.load_trades()
+    status_df = db.get_bot_status()
+    error_df = db.load_errors()
+    df_pos = db.get_unified_portfolio()
+    live_orders = db.get_live_exchange_orders()
+    backtest_df = db.get_backtest_results()
+    db_orders = db.get_open_orders_from_db()
+
+    # Apply sanitizer to all DataFrames
+    trades_df = sanitize_df(trades_df)
+    status_df = sanitize_df(status_df)
+    error_df = sanitize_df(error_df)
+    df_pos = sanitize_df(df_pos)
+    live_orders = sanitize_df(live_orders)
+    backtest_df = sanitize_df(backtest_df)
+    db_orders = sanitize_df(db_orders)
 
     # ---- Compute metrics ----
     fifo = strat.fifo_stats_all_bots(trades_df)
@@ -1774,7 +1768,7 @@ def main():
                     st.rerun()
             except:
                 st.warning("No valid config JSON")
-            st.dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']], use_container_width=True)
+            st.dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']], width='stretch')
         else:
             st.warning("No bot status records found.")
 
@@ -1783,9 +1777,9 @@ def main():
         st.subheader("Live Portfolio & Unrealized P&L")
         if not df_pos.empty:
             fig_pie = px.pie(df_pos, values='market_value', names='symbol', hole=0.4, title="Asset Allocation")
-            st.plotly_chart(style_plotly_fig(fig_pie), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_pie), width='stretch')
             st.dataframe(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']]
-                         .style.format({'quantity':'{:.4f}','avg_entry':'${:.2f}','current_price':'${:.2f}','market_value':'${:,.2f}','unrealized_pl':'${:,.2f}'}), use_container_width=True)
+                         .style.format({'quantity':'{:.4f}','avg_entry':'${:.2f}','current_price':'${:.2f}','market_value':'${:,.2f}','unrealized_pl':'${:,.2f}'}), width='stretch')
             st.metric("Total Portfolio Value", f"${df_pos['market_value'].sum():,.2f}", delta=f"${df_pos['unrealized_pl'].sum():,.2f} unrealized")
         else:
             st.info("No open positions found.")
@@ -1796,18 +1790,16 @@ def main():
         if not db_orders.empty:
             cols = ['order_id','bot_name','symbol','side','price']
             if 'created_at' in db_orders.columns: cols.append('created_at')
-            st.dataframe(db_orders[cols], use_container_width=True)
+            st.dataframe(db_orders[cols], width='stretch')
         else:
             st.info("No bot-tracked open orders.")
         st.divider()
         st.subheader("Live Exchange Orders")
         if not live_orders.empty:
-            st.dataframe(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']], use_container_width=True)
+            st.dataframe(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']], width='stretch')
             sel_id = st.selectbox("Select order to cancel", live_orders['id'].tolist(), key="cancel_select")
             if st.button("Cancel Selected Order"):
-                # Cancellation requires trading clients – you may need to import them again
-                # For brevity, we skip the actual cancel code here but it's the same as original
-                st.warning("Cancellation code not implemented in this snippet – copy from original.")
+                st.warning("Cancellation code not implemented in this snippet.")
         else:
             st.success("No live open orders.")
 
@@ -1823,15 +1815,14 @@ def main():
             c4.metric("Total Fees", f"${m['Total Fees (USD)']:,.2f}")
             st.metric("Sharpe Ratio", m['Sharpe Ratio (daily)'])
             st.metric("Max Drawdown", f"{m['Max Drawdown (%)']}%")
-            # Cumulative plot
             df_eq = trades_df.copy()
             df_eq['timestamp'] = pd.to_datetime(df_eq['timestamp'])
             df_eq = df_eq.sort_values('timestamp')
             df_eq['net_cash'] = df_eq.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
             df_eq['cum_pnl'] = df_eq['net_cash'].cumsum()
-            fig_cum = px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow (sells - buys)")
-            st.plotly_chart(style_plotly_fig(fig_cum), use_container_width=True)
-            st.caption("Note: this chart goes negative when bots are accumulating inventory. That is expected for grid bots.")
+            fig_cum = px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow")
+            st.plotly_chart(style_plotly_fig(fig_cum), width='stretch')
+            st.caption("Note: this chart goes negative when bots are accumulating inventory.")
         else:
             st.info("No trade data yet.")
 
@@ -1839,7 +1830,7 @@ def main():
     with tab5:
         st.subheader("🚨 Error Observatory")
         if not error_df.empty:
-            st.dataframe(error_df, use_container_width=True)
+            st.dataframe(error_df, width='stretch')
         else:
             st.success("✅ No errors logged.")
 
@@ -1856,7 +1847,7 @@ def main():
             })
             st.dataframe(summary.style.format({
                 'Win Rate %':'{:.2f}%','Realized P&L':'${:,.2f}','Inventory Cost Basis':'${:,.2f}','Inventory Qty':'{:.6f}'
-            }).map(lambda v: 'color:#00ff9d' if isinstance(v, float) and v > 0 else 'color:#ff4d4d' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), use_container_width=True)
+            }).map(lambda v: 'color:#10B981' if isinstance(v, float) and v > 0 else 'color:#F43F5E' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), width='stretch')
             st.divider()
             for bot_name, stats in fifo.items():
                 pnl = stats['realized_pnl']
@@ -1873,14 +1864,14 @@ def main():
                         st.success("✅ All positions closed — clean state")
             # Charts
             chart_data = pd.DataFrame(list(fifo.values()))
-            fig_pnl_bar = px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot (FIFO closed trades only)", color='realized_pnl', color_continuous_scale='RdYlGn')
-            st.plotly_chart(style_plotly_fig(fig_pnl_bar), use_container_width=True)
-            
+            fig_pnl_bar = px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot", color='realized_pnl', color_continuous_scale='RdYlGn')
+            st.plotly_chart(style_plotly_fig(fig_pnl_bar), width='stretch')
+
             fig_wl = go.Figure()
             fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#10B981'))
             fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#F43F5E'))
             fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group')
-            st.plotly_chart(style_plotly_fig(fig_wl), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_wl), width='stretch')
 
     # === TAB 7: TRADE HISTORY ===
     with tab7:
@@ -1889,7 +1880,7 @@ def main():
             bot_filter = st.multiselect("Filter by Bot", trades_df['bot_name'].unique().tolist(), key="history_filter")
             filtered = trades_df if not bot_filter else trades_df[trades_df['bot_name'].isin(bot_filter)]
             cols = ['timestamp','bot_name','exchange','symbol','side','price','quantity','value','fee','order_id']
-            st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), use_container_width=True)
+            st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), width='stretch')
             st.download_button("Export CSV", filtered.to_csv(index=False), "trades.csv", key="export_trades")
         else:
             st.info("No trades logged yet.")
@@ -1908,7 +1899,7 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             merged = pd.merge(latest, live_metrics, on='bot_name', how='outer')
             dcols = ['bot_name','net_profit','live_net_profit','sharpe_ratio','live_sharpe','max_drawdown_pct','live_max_drawdown','win_rate','live_win_rate']
             ren = merged[dcols].rename(columns={'net_profit':'Backtest Net P&L','live_net_profit':'Live Net P&L','sharpe_ratio':'Backtest Sharpe','live_sharpe':'Live Sharpe','max_drawdown_pct':'Backtest Max DD %','live_max_drawdown':'Live Max DD %','win_rate':'Backtest Win Rate %','live_win_rate':'Live Win Rate %'})
-            st.dataframe(ren.style.format({'Backtest Net P&L':'${:.2f}','Live Net P&L':'${:.2f}','Backtest Sharpe':'{:.2f}','Live Sharpe':'{:.2f}','Backtest Max DD %':'{:.2f}%','Live Max DD %':'{:.2f}%','Backtest Win Rate %':'{:.2f}%','Live Win Rate %':'{:.2f}%'}).map(lambda v: 'color:green' if isinstance(v,(int,float)) and v>0 else 'color:red' if isinstance(v,(int,float)) and v<0 else '', subset=['Live Net P&L']), use_container_width=True)
+            st.dataframe(ren.style.format({'Backtest Net P&L':'${:.2f}','Live Net P&L':'${:.2f}','Backtest Sharpe':'{:.2f}','Live Sharpe':'{:.2f}','Backtest Max DD %':'{:.2f}%','Live Max DD %':'{:.2f}%','Backtest Win Rate %':'{:.2f}%','Live Win Rate %':'{:.2f}%'}).map(lambda v: 'color:green' if isinstance(v,(int,float)) and v>0 else 'color:red' if isinstance(v,(int,float)) and v<0 else '', subset=['Live Net P&L']), width='stretch')
 
     # === TAB 9: BOT P&L COMPARISON ===
     with tab9:
@@ -1920,13 +1911,13 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             df['net_cash'] = df.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
             df = df.sort_values(['bot_name','timestamp'])
             df['cum_pnl'] = df.groupby('bot_name')['net_cash'].cumsum()
-            fig_pnl_comp = px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow", labels={'cum_pnl':'Cash Flow (USD)'})
-            st.plotly_chart(style_plotly_fig(fig_pnl_comp), use_container_width=True)
+            fig_pnl_comp = px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow")
+            st.plotly_chart(style_plotly_fig(fig_pnl_comp), width='stretch')
             bots = df['bot_name'].unique().tolist()
             sel = st.multiselect("Filter bots", bots, default=bots, key="bot_line_filter")
             if sel:
                 fig_pnl_filtered = px.line(df[df['bot_name'].isin(sel)], x='timestamp', y='cum_pnl', color='bot_name', title="Filtered")
-                st.plotly_chart(style_plotly_fig(fig_pnl_filtered), use_container_width=True)
+                st.plotly_chart(style_plotly_fig(fig_pnl_filtered), width='stretch')
         else:
             st.info("No trade data yet.")
 
@@ -1945,10 +1936,10 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             if debug_df.empty:
                 st.info("No matched BUY→SELL trades yet.")
             else:
-                st.dataframe(debug_df, use_container_width=True)
+                st.dataframe(debug_df, width='stretch')
                 debug_df['cum_pnl'] = debug_df['pnl'].cumsum()
                 fig_fifo_debug = px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L")
-                st.plotly_chart(style_plotly_fig(fig_fifo_debug), use_container_width=True)
+                st.plotly_chart(style_plotly_fig(fig_fifo_debug), width='stretch')
 
 if __name__ == "__main__":
     main()
