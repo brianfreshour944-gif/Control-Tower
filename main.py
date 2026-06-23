@@ -1,3 +1,4 @@
+`# main.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -1704,7 +1705,7 @@ def main():
                         conn.execute(text("UPDATE bot_status SET status='STOP' WHERE bot_name=:n"), {"n": sel})
                         conn.commit()
                     st.rerun()
-          `  dl = float(bot_row.get('daily_loss', 0) or 0)
+            dl = float(bot_row.get('daily_loss', 0) or 0)
             lim = float(bot_row.get('daily_loss_limit', 100) or 100)
             st.progress(max(0.0, min(1.0, dl / max(lim, 1))), text=f"Daily Loss: ${dl:.2f} / ${lim:.2f}")
             new_lim = st.number_input("Update daily loss limit ($)", value=lim, step=10.0, key="limit_input")
