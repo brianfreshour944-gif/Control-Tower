@@ -236,6 +236,467 @@ st.markdown("""
     .stSlider>div>div>div>div>div>div {
         background-color: #38BDF8 !important;
     }
+
+    /* ----- JSON Viewer ----- */
+    .stJson pre {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Code Blocks (more specific) ----- */
+    code, pre, .stCodeBlock pre, .stJson pre {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- AgGrid Additional Styling ----- */
+    .ag-theme-alpine .ag-header-cell,
+    .ag-theme-alpine .ag-header-group-cell {
+        background-color: #151A24 !important;
+        color: #38BDF8 !important;
+        border-color: #1E293B !important;
+    }
+    .ag-theme-alpine .ag-row {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+    .ag-theme-alpine .ag-row:hover {
+        background-color: #1E293B !important;
+    }
+    .ag-theme-alpine .ag-cell {
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Container Styling ----- */
+    .stContainer {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Widget Styling ----- */
+    .st-bw, .st-bx, .st-bt, .st-bu, .st-bv, .st-bw, .st-bx, .st-by, .st-bz, .st-c0 {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Streamlit Element Styling ----- */
+    .st-c1, .st-c2, .st-c3, .st-c4, .st-c5, .st-c6, .st-c7, .st-c8, .st-c9, .st-c10 {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Streamlit Block Styling ----- */
+    .st-bb, .st-bc, .st-bd, .st-be, .st-bf, .st-bg, .st-bh, .st-bi, .st-bj, .st-bk {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Streamlit Section Styling ----- */
+    .st-d2, .st-d3, .st-d4, .st-d5, .st-d6, .st-d7, .st-d8, .st-d9, .st-d10 {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Streamlit Widget Labels ----- */
+    .st-bw label, .st-bx label, .st-bt label, .st-bu label, .st-bv label,
+    .stTextInput label, .stNumberInput label, .stTextArea label,
+    .stSelectbox label, .stMultiSelect label, .stDateInput label,
+    .stCheckbox label, .stRadio label {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Placeholder Text ----- */
+    .stTextInput input::placeholder,
+    .stNumberInput input::placeholder,
+    .stTextArea textarea::placeholder {
+        color: #94A3B8 !important;
+        opacity: 1 !important;
+    }
+
+    /* ----- Streamlit Tooltip ----- */
+    .stTooltip {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Spinner ----- */
+    .stSpinner > div {
+        border-top-color: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Status ----- */
+    .stStatus {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Empty Styling ----- */
+    .stEmpty {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Metric Styling ----- */
+    .stMetric {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Table Styling ----- */
+    table, th, td {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+    th {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit HR/Divider ----- */
+    hr, .stDivider {
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Markdown ----- */
+    .stMarkdown {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Caption ----- */
+    .stCaption {
+        color: #94A3B8 !important;
+    }
+
+    /* ----- Streamlit Title ----- */
+    .stTitle {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Header ----- */
+    .stHeader {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Subheader ----- */
+    .stSubheader {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Info ----- */
+    .stInfo {
+        background-color: #151A24 !important;
+        border-left: 4px solid #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Success ----- */
+    .stSuccess {
+        background-color: #151A24 !important;
+        border-left: 4px solid #10B981 !important;
+    }
+
+    /* ----- Streamlit Warning ----- */
+    .stWarning {
+        background-color: #151A24 !important;
+        border-left: 4px solid #F59E0B !important;
+    }
+
+    /* ----- Streamlit Error ----- */
+    .stError {
+        background-color: #151A24 !important;
+        border-left: 4px solid #F43F5E !important;
+    }
+
+    /* ----- Streamlit Exception ----- */
+    .stException {
+        background-color: #151A24 !important;
+        border-left: 4px solid #F43F5E !important;
+    }
+
+    /* ----- Streamlit Help ----- */
+    .stHelp {
+        background-color: #151A24 !important;
+        border-left: 4px solid #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Expander Content ----- */
+    .streamlit-expanderContent {
+        background-color: #0B0E14 !important;
+        border: 1px solid #1E293B !important;
+        border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+
+    /* ----- Streamlit Column Styling ----- */
+    .stColumn {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Tabs Content ----- */
+    .stTabs [data-testid="stTab"] {
+        background-color: #0B0E14 !important;
+    }
+
+    /* ----- Streamlit Sidebar Content ----- */
+    .sidebar .sidebar-content {
+        background-color: #0F131C !important;
+    }
+
+    /* ----- Streamlit Main Content ----- */
+    .main .block-container {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Widget Overrides ----- */
+    [data-testid="stWidgetLabel"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Element Overrides ----- */
+    [data-testid="stElementToolbar"] {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Dataframe Overrides ----- */
+    [data-testid="stDataFrame"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit JSON Overrides ----- */
+    [data-testid="stJson"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Code Overrides ----- */
+    [data-testid="stCodeBlock"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Text Overrides ----- */
+    [data-testid="stText"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Markdown Overrides ----- */
+    [data-testid="stMarkdown"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Caption Overrides ----- */
+    [data-testid="stCaption"] {
+        color: #94A3B8 !important;
+    }
+
+    /* ----- Streamlit Metric Overrides ----- */
+    [data-testid="stMetric"] {
+        background-color: transparent !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Alert Overrides ----- */
+    [data-testid="stAlert"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Progress Overrides ----- */
+    [data-testid="stProgress"] {
+        background-color: #151A24 !important;
+    }
+
+    /* ----- Streamlit Slider Overrides ----- */
+    [data-testid="stSlider"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Selectbox Overrides ----- */
+    [data-testid="stSelectbox"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Multiselect Overrides ----- */
+    [data-testid="stMultiSelect"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Text Input Overrides ----- */
+    [data-testid="stTextInput"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Number Input Overrides ----- */
+    [data-testid="stNumberInput"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Text Area Overrides ----- */
+    [data-testid="stTextArea"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Date Input Overrides ----- */
+    [data-testid="stDateInput"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Checkbox Overrides ----- */
+    [data-testid="stCheckbox"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Radio Overrides ----- */
+    [data-testid="stRadio"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Button Overrides ----- */
+    [data-testid="stButton"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Tabs Overrides ----- */
+    [data-testid="stTabs"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Expander Overrides ----- */
+    [data-testid="stExpander"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Container Overrides ----- */
+    [data-testid="stContainer"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Column Overrides ----- */
+    [data-testid="stColumn"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Divider Overrides ----- */
+    [data-testid="stDivider"] {
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit File Uploader Overrides ----- */
+    [data-testid="stFileUploader"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Color Picker Overrides ----- */
+    [data-testid="stColorPicker"] {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Time Input Overrides ----- */
+    [data-testid="stTimeInput"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Camera Input Overrides ----- */
+    [data-testid="stCameraInput"] {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Audio Overrides ----- */
+    [data-testid="stAudio"] {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Video Overrides ----- */
+    [data-testid="stVideo"] {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Image Overrides ----- */
+    [data-testid="stImage"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Plotly Chart Overrides ----- */
+    [data-testid="stPlotlyChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Pydeck Chart Overrides ----- */
+    [data-testid="stPydeckChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Graphviz Chart Overrides ----- */
+    [data-testid="stGraphvizChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Vega Lite Chart Overrides ----- */
+    [data-testid="stVegaLiteChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Altair Chart Overrides ----- */
+    [data-testid="stAltairChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Bokeh Chart Overrides ----- */
+    [data-testid="stBokehChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Deck.GL Chart Overrides ----- */
+    [data-testid="stDeckGlChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Plotly Chart Overrides ----- */
+    [data-testid="stPlotlyChart"] {
+        background-color: transparent !important;
+    }
+
+    /* ----- Streamlit Final Overrides ----- */
+    * {
+        scrollbar-color: #1E293B #0B0E14 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
