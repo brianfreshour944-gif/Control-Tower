@@ -22,31 +22,59 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ========== SOFT DARK CSS (GitHub-Inspired, Calm & Readable) ==========
+# ========== YOUR CUSTOM DARK CSS ==========
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
-    /* ----- Ergonomic Background ----- */
-    .stApp, .main {
-        background-color: #0d1117 !important;
-        color: #c9d1d9 !important;
+    /* 1. Global Page Background - Set to deepest dark */
+    .stApp, .main, [data-testid="stAppViewContainer"] {
+        background-color: #0B0E14 !important;
     }
 
-    /* ----- Soft Glassmorphism Metric Cards ----- */
+    /* 2. Force Sidebar to match */
+    [data-testid="stSidebar"] {
+        background-color: #0B0E14 !important;
+        border-right: 1px solid #1E293B !important;
+    }
+
+    /* 3. Force all Input Boxes and Selectboxes to Dark */
+    .stTextInput > div > div > input, 
+    .stNumberInput > div > div > input, 
+    .stSelectbox > div > div {
+        background-color: #151921 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #334155 !important;
+        border-radius: 8px !important;
+    }
+
+    /* 4. Fix the Metrics area and text colors */
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"], h1, h2, h3, p, span {
+        color: #E2E8F0 !important;
+    }
+
+    /* 5. Force the "Canvas" area to be transparent */
+    [data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
+    }
+
+    /* 6. Clean up the Sidebar text */
+    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
+        color: #94A3B8 !important;
+    }
+
+    /* 7. Custom Metric Cards (matching your dark theme) */
     .custom-metric {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
+        background: #151921 !important;
+        border: 1px solid #1E293B !important;
         border-radius: 12px !important;
         padding: 1.2rem !important;
         text-align: center;
         transition: border-color 0.2s;
     }
     .custom-metric:hover {
-        border-color: #58a6ff !important;
+        border-color: #3B82F6 !important;
     }
     .custom-metric-label {
-        color: #8b949e !important;
+        color: #94A3B8 !important;
         font-size: 0.7rem !important;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -55,82 +83,64 @@ st.markdown("""
     .custom-metric-value {
         font-size: 1.8rem !important;
         font-weight: 600 !important;
-        color: #e6edf3 !important;
+        color: #E2E8F0 !important;
     }
 
-    /* ----- Readable P&L Colors ----- */
-    .profit { color: #3fb950 !important; }
-    .loss { color: #f85149 !important; }
+    /* 8. P&L Colors */
+    .profit { color: #22C55E !important; }
+    .loss { color: #EF4444 !important; }
 
-    /* ----- Headings ----- */
-    h1, h2, h3 {
-        color: #e6edf3 !important;
-        font-weight: 600 !important;
-    }
-
-    /* ----- Tables & Grids ----- */
-    .ag-theme-alpine-dark {
-        --ag-background-color: #0d1117 !important;
-        --ag-header-background-color: #161b22 !important;
-        --ag-foreground-color: #c9d1d9 !important;
-        --ag-border-color: #30363d !important;
-    }
-
-    /* ----- Buttons ----- */
+    /* 9. Buttons */
     .stButton>button {
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         font-weight: 500 !important;
-        background: #21262d !important;
-        color: #c9d1d9 !important;
-        border: 1px solid #30363d !important;
+        background: #151921 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
         transition: all 0.15s;
     }
     .stButton>button:hover {
-        border-color: #58a6ff !important;
-        background: #1c2333 !important;
+        border-color: #3B82F6 !important;
+        background: #1E293B !important;
     }
 
-    /* ----- Progress Bar ----- */
+    /* 10. Progress Bar */
     .stProgress > div > div > div > div {
-        background: #58a6ff !important;
+        background: #3B82F6 !important;
     }
 
-    /* ----- Select / Input ----- */
-    .stSelectbox, .stTextInput, .stNumberInput {
-        background: #0d1117 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
-        color: #c9d1d9 !important;
-    }
-
-    /* ----- Sidebar ----- */
-    .stSidebar {
-        background: #0d1117 !important;
-        border-right: 1px solid #30363d !important;
-    }
-
-    /* ----- Alert boxes ----- */
-    .stAlert {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-    }
-
-    /* ----- Cash Flow Banner ----- */
+    /* 11. Cash Flow Banner */
     .cash-flow-banner {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
+        background: #151921 !important;
+        border: 1px solid #1E293B !important;
         border-radius: 8px !important;
         padding: 0.75rem 1.5rem !important;
         margin-bottom: 0.5rem;
-        color: #c9d1d9 !important;
+        color: #E2E8F0 !important;
     }
 
-    /* ----- Scrollbar ----- */
+    /* 12. AgGrid Theme Override */
+    .ag-theme-alpine-dark {
+        --ag-background-color: #0B0E14 !important;
+        --ag-header-background-color: #151921 !important;
+        --ag-foreground-color: #E2E8F0 !important;
+        --ag-border-color: #1E293B !important;
+        --ag-row-hover-color: #1E293B !important;
+        --ag-selected-row-background-color: #1E293B !important;
+    }
+
+    /* 13. Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0d1117; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+    ::-webkit-scrollbar-track { background: #0B0E14; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
+
+    /* 14. Alert boxes */
+    .stAlert {
+        background: #151921 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -144,7 +154,7 @@ def metric_box(label, content_html):
     return f'<div class="custom-metric"><div class="custom-metric-label">{label}</div>{content_html}</div>'
 
 def white_val(value, fmt="${:,.2f}"):
-    return f'<div class="custom-metric-value" style="color:#e6edf3">{fmt.format(value)}</div>'
+    return f'<div class="custom-metric-value" style="color:#E2E8F0">{fmt.format(value)}</div>'
 
 # ---------- Data Sanitizer ----------
 def sanitize_df(df):
@@ -209,20 +219,20 @@ def main():
             default_index=0,
             styles={
                 "container": {"padding": "0!important", "background-color": "transparent"},
-                "icon": {"color": "#58a6ff", "font-size": "18px"},
+                "icon": {"color": "#3B82F6", "font-size": "18px"},
                 "nav-link": {
                     "font-size": "14px",
                     "text-align": "left",
                     "margin": "2px 0px",
                     "border-radius": "6px",
                     "padding": "8px 12px",
-                    "color": "#8b949e",
+                    "color": "#94A3B8",
                 },
                 "nav-link-selected": {
-                    "background-color": "#161b22",
-                    "color": "#e6edf3",
+                    "background-color": "#151921",
+                    "color": "#E2E8F0",
                     "font-weight": "600",
-                    "border-left": "3px solid #58a6ff",
+                    "border-left": "3px solid #3B82F6",
                 },
             },
             key="menu_widget",
@@ -304,13 +314,13 @@ def main():
     with c5: st.markdown(metric_box("Active Bots", white_val(active_bots, "{:,.0f}")), unsafe_allow_html=True)
     with c6: st.markdown(metric_box("Portfolio Value", white_val(portfolio_val)), unsafe_allow_html=True)
 
-    flow_color = "#3fb950" if daily_cash_flow >= 0 else "#f85149"
+    flow_color = "#22C55E" if daily_cash_flow >= 0 else "#EF4444"
     sign = "+" if daily_cash_flow >= 0 else ""
     st.markdown(
         f'<div class="cash-flow-banner">'
         f'📅 Today\'s cash flow: <span style="color:{flow_color};font-weight:600">'
         f'{sign}${daily_cash_flow:,.2f}</span> &nbsp;'
-        f'<span style="color:#8b949e;font-size:0.85rem">'
+        f'<span style="color:#94A3B8;font-size:0.85rem">'
         f'(negative = buying inventory – held: ${inventory_cost:,.2f})</span>'
         f'</div>', unsafe_allow_html=True)
     st.divider()
@@ -379,8 +389,8 @@ def main():
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("unrealized_pl", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#22C55E;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#EF4444;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
@@ -495,8 +505,8 @@ def main():
                     gb.configure_pagination(paginationAutoPageSize=True)
                     gb.configure_column("Realized P&L", cellRenderer=JsCode("""
                         function(params) {
-                            if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
-                            else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                            if (params.value > 0) return '<span style="color:#22C55E;">+$' + params.value.toFixed(2) + '</span>';
+                            else if (params.value < 0) return '<span style="color:#EF4444;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                             else return '$0.00';
                         }
                     """))
@@ -563,8 +573,8 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("Live Net P&L", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#3fb950;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#f85149;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#22C55E;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#EF4444;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
@@ -629,11 +639,11 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot", labels={'daily_pnl':'Daily P&L (USD)','date':'Date'}, barmode='group')
                     st.plotly_chart(fig, width='stretch')
                     pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
-                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #3fb950' if v > 0 else 'color: #f85149' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
+                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #22C55E' if v > 0 else 'color: #EF4444' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
                     st.subheader("Total Realized P&L per Bot")
                     total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                     total_per_bot.columns = ['bot_name', 'Total P&L']
-                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #3fb950' if v > 0 else 'color: #f85149' if v < 0 else '', subset=['Total P&L']), width='stretch')
+                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #22C55E' if v > 0 else 'color: #EF4444' if v < 0 else '', subset=['Total P&L']), width='stretch')
 
 if __name__ == "__main__":
     main()
