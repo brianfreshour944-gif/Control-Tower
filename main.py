@@ -25,112 +25,56 @@ st.set_page_config(
 # ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
-    /* ----- Ergonomic Background ----- */
-    .stApp, .main {
+    /* 1. Global Reset & Force Dark Background */
+    .stApp {
         background-color: #0d1117 !important;
+    }
+    
+    /* 2. Text Override */
+    body, p, div, span, h1, h2, h3, h4, h5, h6 {
         color: #c9d1d9 !important;
+        font-family: 'Inter', sans-serif !important;
     }
 
-    /* ----- Soft Glassmorphism Metric Cards ----- */
+    /* 3. Force Sidebar to match */
+    [data-testid="stSidebar"] {
+        background-color: #0d1117 !important;
+        border-right: 1px solid #30363d !important;
+    }
+
+    /* 4. Force Input Fields and Text Areas */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>textarea {
+        background-color: #161b22 !important;
+        color: #e6edf3 !important;
+        border: 1px solid #30363d !important;
+    }
+
+    /* 5. Metrics & Cards (The "Glassmorphism" look) */
     .custom-metric {
         background: #161b22 !important;
         border: 1px solid #30363d !important;
         border-radius: 12px !important;
         padding: 1.2rem !important;
         text-align: center;
-        transition: border-color 0.2s;
     }
-    .custom-metric:hover {
-        border-color: #58a6ff !important;
-    }
-    .custom-metric-label {
-        color: #8b949e !important;
-        font-size: 0.7rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-    .custom-metric-value {
-        font-size: 1.8rem !important;
-        font-weight: 600 !important;
-        color: #e6edf3 !important;
+    
+    .stMetric {
+        background-color: #161b22 !important;
+        padding: 15px !important;
+        border-radius: 10px !important;
+        border: 1px solid #30363d !important;
     }
 
-    /* ----- Readable P&L Colors ----- */
-    .profit { color: #3fb950 !important; }
-    .loss { color: #f85149 !important; }
-
-    /* ----- Headings ----- */
-    h1, h2, h3 {
-        color: #e6edf3 !important;
-        font-weight: 600 !important;
-    }
-
-    /* ----- Tables & Grids ----- */
-    .ag-theme-alpine-dark {
-        --ag-background-color: #0d1117 !important;
-        --ag-header-background-color: #161b22 !important;
-        --ag-foreground-color: #c9d1d9 !important;
-        --ag-border-color: #30363d !important;
-    }
-
-    /* ----- Buttons ----- */
+    /* 6. Buttons */
     .stButton>button {
-        border-radius: 6px !important;
-        font-weight: 500 !important;
-        background: #21262d !important;
+        background-color: #21262d !important;
         color: #c9d1d9 !important;
         border: 1px solid #30363d !important;
-        transition: all 0.15s;
     }
     .stButton>button:hover {
         border-color: #58a6ff !important;
-        background: #1c2333 !important;
+        color: #58a6ff !important;
     }
-
-    /* ----- Progress Bar ----- */
-    .stProgress > div > div > div > div {
-        background: #58a6ff !important;
-    }
-
-    /* ----- Select / Input ----- */
-    .stSelectbox, .stTextInput, .stNumberInput {
-        background: #0d1117 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
-        color: #c9d1d9 !important;
-    }
-
-    /* ----- Sidebar ----- */
-    .stSidebar {
-        background: #0d1117 !important;
-        border-right: 1px solid #30363d !important;
-    }
-
-    /* ----- Alert boxes ----- */
-    .stAlert {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-    }
-
-    /* ----- Cash Flow Banner ----- */
-    .cash-flow-banner {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 8px !important;
-        padding: 0.75rem 1.5rem !important;
-        margin-bottom: 0.5rem;
-        color: #c9d1d9 !important;
-    }
-
-    /* ----- Scrollbar ----- */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0d1117; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
 </style>
 """, unsafe_allow_html=True)
 
