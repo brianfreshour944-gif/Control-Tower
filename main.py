@@ -25,41 +25,40 @@ st.set_page_config(
 # ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
-    /* 1. Global Page Background */
-    .stApp {
+    /* 1. Global Page Background - Set to deepest dark */
+    .stApp, .main, [data-testid="stAppViewContainer"] {
         background-color: #0B0E14 !important;
     }
 
-    /* 2. Target the specific "white rectangles" in your input fields */
+    /* 2. Force Sidebar to match */
+    [data-testid="stSidebar"] {
+        background-color: #0B0E14 !important;
+        border-right: 1px solid #1E293B !important;
+    }
+
+    /* 3. Force all Input Boxes and Selectboxes to Dark */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input, 
-    .stTextArea > div > textarea,
     .stSelectbox > div > div {
         background-color: #151921 !important;
-        color: #CBD5E1 !important;
-        border: 1px solid #232A36 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #334155 !important;
+        border-radius: 8px !important;
     }
 
-    /* 3. Make labels and headers softer */
-    label, h1, h2, h3, h4, .stMarkdown, .stText {
-        color: #94A3B8 !important;
+    /* 4. Fix the Metrics area and text colors */
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"], h1, h2, h3, p, span {
+        color: #E2E8F0 !important;
     }
 
-    /* 4. Kill the white background of the containers themselves */
-    div[data-testid="stVerticalBlock"] {
+    /* 5. Force the "Canvas" area to be transparent */
+    [data-testid="stVerticalBlock"] {
         background-color: transparent !important;
     }
-    
-    /* 5. Force the AgGrid theme background to match your palette */
-    .ag-theme-alpine-dark {
-        --ag-background-color: #0B0E14 !important;
-        --ag-header-background-color: #151921 !important;
-        --ag-row-hover-color: #1E293B !important;
-    }
 
-    /* 6. Fix the "white line" under text areas */
-    .stTextArea > div > textarea {
-        border-radius: 12px !important;
+    /* 6. Clean up the Sidebar text */
+    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
+        color: #94A3B8 !important;
     }
 </style>
 """, unsafe_allow_html=True)
