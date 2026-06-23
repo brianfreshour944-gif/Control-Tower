@@ -695,6 +695,234 @@ st.markdown("""
         border-radius: 0 0 8px 8px !important;
     }
 
+    /* ----- Streamlit Expander Header Enhanced ----- */
+    .streamlit-expanderHeader {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Streamlit Expander Header Content ----- */
+    .streamlit-expanderHeader .streamlit-expanderHeaderContent {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Expander Header Icon ----- */
+    .streamlit-expanderHeader .streamlit-expanderHeaderIcon {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Expander Header Arrow ----- */
+    .streamlit-expanderHeader .streamlit-expanderArrow {
+        color: #E2E8F0 !important;
+        border-color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Expander Header Hover ----- */
+    .streamlit-expanderHeader:hover {
+        background-color: #1E293B !important;
+        border-color: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Expander Header Active ----- */
+    .streamlit-expanderHeader[aria-expanded="true"] {
+        background-color: #1E293B !important;
+        border-color: #38BDF8 !important;
+    }
+
+    /* ----- Streamlit Expander Content Enhanced ----- */
+    .streamlit-expanderContent {
+        background-color: #0B0E14 !important;
+        border: 1px solid #1E293B !important;
+        border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Expander Content Elements ----- */
+    .streamlit-expanderContent * {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Streamlit Expander Content Tables ----- */
+    .streamlit-expanderContent table {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Expander Content Headers ----- */
+    .streamlit-expanderContent th {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Expander Content Cells ----- */
+    .streamlit-expanderContent td {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Expander Content Metrics ----- */
+    .streamlit-expanderContent .stMetric {
+        background-color: transparent !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Streamlit Expander Content Buttons ----- */
+    .streamlit-expanderContent .stButton>button {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Streamlit Expander Content Inputs ----- */
+    .streamlit-expanderContent .stTextInput>div>div>input,
+    .streamlit-expanderContent .stNumberInput>div>div>input {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Specific Styling ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #38BDF8 !important;
+    }
+
+    /* ----- Per-Bot Performance Header Text ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] span,
+    .streamlit-expanderHeader[aria-label*="bot"] span,
+    .streamlit-expanderHeader[aria-label*="Bot"] span {
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+    }
+
+    /* ----- Per-Bot Performance Icon Styling ----- */
+    .streamlit-expanderHeader[aria-label*="🟢"],
+    .streamlit-expanderHeader[aria-label*="🔴"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Expander Content ----- */
+    .streamlit-expanderContent[aria-label*="Per-Bot"],
+    .streamlit-expanderContent[aria-label*="bot"],
+    .streamlit-expanderContent[aria-label*="Bot"] {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Metric Boxes ----- */
+    .streamlit-expanderContent .custom-metric {
+        background-color: #151A24 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Info Boxes ----- */
+    .streamlit-expanderContent .stInfo,
+    .streamlit-expanderContent .stSuccess,
+    .streamlit-expanderContent .stWarning,
+    .streamlit-expanderContent .stError {
+        background-color: #151A24 !important;
+        border-left: 4px solid #38BDF8 !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Column Layout ----- */
+    .streamlit-expanderContent .stColumn {
+        background-color: transparent !important;
+    }
+
+    /* ----- Per-Bot Performance Button Styling ----- */
+    .streamlit-expanderContent .stButton>button[kind="primary"] {
+        background: linear-gradient(135deg, #38BDF8 0%, #0369A1 100%) !important;
+        border: none !important;
+        color: white !important;
+    }
+
+    /* ----- Per-Bot Performance Progress Bars ----- */
+    .streamlit-expanderContent .stProgress > div > div > div > div {
+        background: linear-gradient(135deg, #38BDF8 0%, #0369A1 100%) !important;
+    }
+
+    /* ----- Per-Bot Performance Input Fields ----- */
+    .streamlit-expanderContent .stTextArea>div>div>textarea {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Select Boxes ----- */
+    .streamlit-expanderContent .stSelectbox>div>div>div {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Force Dark Theme ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
+    .streamlit-expanderHeader[aria-label*="bot"] *,
+    .streamlit-expanderHeader[aria-label*="Bot"] *,
+    .streamlit-expanderContent[aria-label*="Per-Bot"] *,
+    .streamlit-expanderContent[aria-label*="bot"] *,
+    .streamlit-expanderContent[aria-label*="Bot"] * {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Inline Style Overrides ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] [style*="color: white"],
+    .streamlit-expanderHeader[aria-label*="bot"] [style*="color: white"],
+    .streamlit-expanderHeader[aria-label*="Bot"] [style*="color: white"],
+    .streamlit-expanderContent[aria-label*="Per-Bot"] [style*="color: white"],
+    .streamlit-expanderContent[aria-label*="bot"] [style*="color: white"],
+    .streamlit-expanderContent[aria-label*="Bot"] [style*="color: white"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Background Overrides ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] [style*="background: white"],
+    .streamlit-expanderHeader[aria-label*="bot"] [style*="background: white"],
+    .streamlit-expanderHeader[aria-label*="Bot"] [style*="background: white"],
+    .streamlit-expanderContent[aria-label*="Per-Bot"] [style*="background: white"],
+    .streamlit-expanderContent[aria-label*="bot"] [style*="background: white"],
+    .streamlit-expanderContent[aria-label*="Bot"] [style*="background: white"] {
+        background: #151A24 !important;
+    }
+
+    /* ----- Per-Bot Performance Z-Index Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        z-index: 100 !important;
+        position: relative !important;
+    }
+
+    /* ----- Per-Bot Performance Layer Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"]::before,
+    .streamlit-expanderHeader[aria-label*="bot"]::before,
+    .streamlit-expanderHeader[aria-label*="Bot"]::before {
+        content: "" !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background-color: #151A24 !important;
+        z-index: -1 !important;
+        border-radius: 8px !important;
+    }
+
     /* ----- Streamlit Column Styling ----- */
     .stColumn {
         background-color: transparent !important;
