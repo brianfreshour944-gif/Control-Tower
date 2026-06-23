@@ -10,10 +10,12 @@ from datetime import datetime, date
 import ccxt
 
 @st.cache_resource
+@st.cache_resource
 def get_db_engine():
     db_url = os.getenv("DATABASE_URL")
-    if db_url and db_url.startswith("postgresql+psycopg2://"):
+    if db_url:
         db_url = db_url.replace("postgresql+psycopg2://", "postgresql://")
+        db_url = db_url.replace("postgres://", "postgresql://")  # <-- ADD THIS LINE
     return create_engine(db_url, pool_size=5, max_overflow=10)
 
 # ---------- Migrations ----------
