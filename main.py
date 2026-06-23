@@ -25,55 +25,55 @@ st.set_page_config(
 # ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
-    /* 1. Global Reset & Force Dark Background */
+    /* 1. Global Background: Softer than pure black */
     .stApp {
-        background-color: #0d1117 !important;
+        background-color: #0B0E14 !important;
+        background-image: none !important;
     }
-    
-    /* 2. Text Override */
-    body, p, div, span, h1, h2, h3, h4, h5, h6 {
-        color: #c9d1d9 !important;
+
+    /* 2. Remove default Streamlit whitespace/clutter */
+    .main .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* 3. The "Glass" Card Style */
+    div[data-testid="stMetric"], .custom-metric {
+        background-color: #151921 !important;
+        border: 1px solid #232A36 !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* 4. Text and Headings */
+    h1, h2, h3 {
+        color: #F8FAFC !important;
         font-family: 'Inter', sans-serif !important;
-    }
-
-    /* 3. Force Sidebar to match */
-    [data-testid="stSidebar"] {
-        background-color: #0d1117 !important;
-        border-right: 1px solid #30363d !important;
-    }
-
-    /* 4. Force Input Fields and Text Areas */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>textarea {
-        background-color: #161b22 !important;
-        color: #e6edf3 !important;
-        border: 1px solid #30363d !important;
-    }
-
-    /* 5. Metrics & Cards (The "Glassmorphism" look) */
-    .custom-metric {
-        background: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 12px !important;
-        padding: 1.2rem !important;
-        text-align: center;
+        letter-spacing: -0.02em !important;
     }
     
-    .stMetric {
-        background-color: #161b22 !important;
-        padding: 15px !important;
-        border-radius: 10px !important;
-        border: 1px solid #30363d !important;
+    div, p, span {
+        color: #94A3B8 !important; /* Soft muted gray for readability */
     }
 
-    /* 6. Buttons */
+    /* 5. Custom Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background-color: #0B0E14 !important;
+        border-right: 1px solid #1E293B !important;
+    }
+
+    /* 6. Buttons (Clean and Flat) */
     .stButton>button {
-        background-color: #21262d !important;
-        color: #c9d1d9 !important;
-        border: 1px solid #30363d !important;
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #334155 !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
     }
     .stButton>button:hover {
-        border-color: #58a6ff !important;
-        color: #58a6ff !important;
+        background-color: #2D3748 !important;
+        border-color: #475569 !important;
     }
 </style>
 """, unsafe_allow_html=True)
