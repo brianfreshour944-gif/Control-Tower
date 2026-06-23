@@ -25,55 +25,41 @@ st.set_page_config(
 # ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
-    /* 1. Global Background: Softer than pure black */
+    /* 1. Global Page Background */
     .stApp {
         background-color: #0B0E14 !important;
-        background-image: none !important;
     }
 
-    /* 2. Remove default Streamlit whitespace/clutter */
-    .main .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 2rem !important;
-    }
-
-    /* 3. The "Glass" Card Style */
-    div[data-testid="stMetric"], .custom-metric {
+    /* 2. Target the specific "white rectangles" in your input fields */
+    .stTextInput > div > div > input, 
+    .stNumberInput > div > div > input, 
+    .stTextArea > div > textarea,
+    .stSelectbox > div > div {
         background-color: #151921 !important;
+        color: #CBD5E1 !important;
         border: 1px solid #232A36 !important;
-        border-radius: 16px !important;
-        padding: 20px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
     }
 
-    /* 4. Text and Headings */
-    h1, h2, h3 {
-        color: #F8FAFC !important;
-        font-family: 'Inter', sans-serif !important;
-        letter-spacing: -0.02em !important;
+    /* 3. Make labels and headers softer */
+    label, h1, h2, h3, h4, .stMarkdown, .stText {
+        color: #94A3B8 !important;
+    }
+
+    /* 4. Kill the white background of the containers themselves */
+    div[data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
     }
     
-    div, p, span {
-        color: #94A3B8 !important; /* Soft muted gray for readability */
+    /* 5. Force the AgGrid theme background to match your palette */
+    .ag-theme-alpine-dark {
+        --ag-background-color: #0B0E14 !important;
+        --ag-header-background-color: #151921 !important;
+        --ag-row-hover-color: #1E293B !important;
     }
 
-    /* 5. Custom Sidebar styling */
-    section[data-testid="stSidebar"] {
-        background-color: #0B0E14 !important;
-        border-right: 1px solid #1E293B !important;
-    }
-
-    /* 6. Buttons (Clean and Flat) */
-    .stButton>button {
-        background-color: #1E293B !important;
-        color: #E2E8F0 !important;
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
-        transition: all 0.3s ease !important;
-    }
-    .stButton>button:hover {
-        background-color: #2D3748 !important;
-        border-color: #475569 !important;
+    /* 6. Fix the "white line" under text areas */
+    .stTextArea > div > textarea {
+        border-radius: 12px !important;
     }
 </style>
 """, unsafe_allow_html=True)
