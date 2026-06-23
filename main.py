@@ -1,4 +1,4 @@
-# main.py
+`# main.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -923,6 +923,205 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
+    /* ----- Per-Bot Performance Ultimate Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #38BDF8 !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        margin: 0.5rem 0 !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        z-index: 10 !important;
+        overflow: hidden !important;
+    }
+
+    /* ----- Per-Bot Performance Header Content Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] .streamlit-expanderHeaderContent,
+    .streamlit-expanderHeader[aria-label*="bot"] .streamlit-expanderHeaderContent,
+    .streamlit-expanderHeader[aria-label*="Bot"] .streamlit-expanderHeaderContent {
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+        white-space: normal !important;
+        text-overflow: ellipsis !important;
+        overflow: hidden !important;
+    }
+
+    /* ----- Per-Bot Performance Header Icon Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] .streamlit-expanderHeaderIcon,
+    .streamlit-expanderHeader[aria-label*="bot"] .streamlit-expanderHeaderIcon,
+    .streamlit-expanderHeader[aria-label*="Bot"] .streamlit-expanderHeaderIcon {
+        color: #E2E8F0 !important;
+        margin-right: 0.5rem !important;
+        font-size: 1.2rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ----- Per-Bot Performance Header Arrow Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] .streamlit-expanderArrow,
+    .streamlit-expanderHeader[aria-label*="bot"] .streamlit-expanderArrow,
+    .streamlit-expanderHeader[aria-label*="Bot"] .streamlit-expanderArrow {
+        color: #E2E8F0 !important;
+        border-color: #E2E8F0 !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ----- Per-Bot Performance Hover Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"]:hover,
+    .streamlit-expanderHeader[aria-label*="bot"]:hover,
+    .streamlit-expanderHeader[aria-label*="Bot"]:hover {
+        background-color: #1E293B !important;
+        border-color: #60A5FA !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Active Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"][aria-expanded="true"],
+    .streamlit-expanderHeader[aria-label*="bot"][aria-expanded="true"],
+    .streamlit-expanderHeader[aria-label*="Bot"][aria-expanded="true"] {
+        background-color: #1E293B !important;
+        border-color: #38BDF8 !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- Per-Bot Performance Content Fix ----- */
+    .streamlit-expanderContent[aria-label*="Per-Bot"],
+    .streamlit-expanderContent[aria-label*="bot"],
+    .streamlit-expanderContent[aria-label*="Bot"] {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+        border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
+        padding: 1rem !important;
+        margin: 0 0 1rem 0 !important;
+    }
+
+    /* ----- Per-Bot Performance Ultimate Force Override ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
+    .streamlit-expanderHeader[aria-label*="bot"] *,
+    .streamlit-expanderHeader[aria-label*="Bot"] *,
+    .streamlit-expanderContent[aria-label*="Per-Bot"] *,
+    .streamlit-expanderContent[aria-label*="bot"] *,
+    .streamlit-expanderContent[aria-label*="Bot"] * {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+        font-weight: normal !important;
+    }
+
+    /* ----- Per-Bot Performance Inline Style Ultimate Override ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] [style],
+    .streamlit-expanderHeader[aria-label*="bot"] [style],
+    .streamlit-expanderHeader[aria-label*="Bot"] [style],
+    .streamlit-expanderContent[aria-label*="Per-Bot"] [style],
+    .streamlit-expanderContent[aria-label*="bot"] [style],
+    .streamlit-expanderContent[aria-label*="Bot"] [style] {
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    /* ----- Per-Bot Performance Pseudo-Element Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"]::after,
+    .streamlit-expanderHeader[aria-label*="bot"]::after,
+    .streamlit-expanderHeader[aria-label*="Bot"]::after {
+        content: "" !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background-color: #151A24 !important;
+        z-index: -2 !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Per-Bot Performance Box Shadow Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* ----- Per-Bot Performance Border Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        border-width: 1px !important;
+        border-style: solid !important;
+        border-color: #38BDF8 !important;
+    }
+
+    /* ----- Per-Bot Performance Text Selection Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"]::selection,
+    .streamlit-expanderHeader[aria-label*="bot"]::selection,
+    .streamlit-expanderHeader[aria-label*="Bot"]::selection {
+        background-color: #38BDF8 !important;
+        color: #0B0E14 !important;
+    }
+
+    /* ----- Per-Bot Performance Focus Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"]:focus,
+    .streamlit-expanderHeader[aria-label*="bot"]:focus,
+    .streamlit-expanderHeader[aria-label*="Bot"]:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    /* ----- Per-Bot Performance Print Fix ----- */
+    @media print {
+        .streamlit-expanderHeader[aria-label*="Per-Bot"],
+        .streamlit-expanderHeader[aria-label*="bot"],
+        .streamlit-expanderHeader[aria-label*="Bot"] {
+            background-color: #151A24 !important;
+            color: #E2E8F0 !important;
+            border-color: #1E293B !important;
+        }
+    }
+
+    /* ----- Per-Bot Performance Animation Fix ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        animation: none !important;
+        transition: background-color 0.2s ease, border-color 0.2s ease !important;
+    }
+
+    /* ----- Per-Bot Performance Final Force Override ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"],
+    .streamlit-expanderHeader[aria-label*="bot"],
+    .streamlit-expanderHeader[aria-label*="Bot"] {
+        background: #151A24 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #38BDF8 !important;
+        position: relative !important;
+        z-index: 1000 !important;
+    }
+
+    /* ----- Per-Bot Performance Nuclear Option ----- */
+    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
+    .streamlit-expanderHeader[aria-label*="bot"] *,
+    .streamlit-expanderHeader[aria-label*="Bot"] * {
+        all: unset !important;
+        background-color: #151A24 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+    }
+
     /* ----- Streamlit Column Styling ----- */
     .stColumn {
         background-color: transparent !important;
@@ -1506,7 +1705,7 @@ def main():
                         conn.execute(text("UPDATE bot_status SET status='STOP' WHERE bot_name=:n"), {"n": sel})
                         conn.commit()
                     st.rerun()
-            dl = float(bot_row.get('daily_loss', 0) or 0)
+          `  dl = float(bot_row.get('daily_loss', 0) or 0)
             lim = float(bot_row.get('daily_loss_limit', 100) or 100)
             st.progress(max(0.0, min(1.0, dl / max(lim, 1))), text=f"Daily Loss: ${dl:.2f} / ${lim:.2f}")
             new_lim = st.number_input("Update daily loss limit ($)", value=lim, step=10.0, key="limit_input")
