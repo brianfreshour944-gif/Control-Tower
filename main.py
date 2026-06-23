@@ -1588,7 +1588,7 @@ def sanitize_df(df):
     id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']
     for col in id_columns:
         if col in df.columns:
-            df[col] = df[col].astype(str).fillna('').astype('string')
+            df[col] = df[col].astype(str).fillna('').str.strip().astype('string')
 
     # Convert other object columns to numeric if possible
     for col in df.columns:
