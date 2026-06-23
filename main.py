@@ -22,33 +22,29 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ========== PROVEN DARK CSS (No white bleed) ==========
+# ========== CLEAN LIGHT CSS ==========
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
-    
-    html, body, .stApp, .main {
-        background-color: #0a0c10 !important;
-        color: #e0e4ed !important;
+    /* ----- General Light Background ----- */
+    .stApp, .main, [data-testid="stAppViewContainer"] {
+        background-color: #ffffff !important;
     }
 
-    /* Glassmorphism Metric Cards */
+    /* ----- Metric Cards (Clean white with shadow) ----- */
     .custom-metric {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-        border-radius: 16px !important;
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
         padding: 1.2rem !important;
         text-align: center;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s;
     }
     .custom-metric:hover {
-        border-color: #00b4d8 !important;
-        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
     }
     .custom-metric-label {
-        color: #8b92a8 !important;
+        color: #6b7280 !important;
         font-size: 0.75rem !important;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -58,102 +54,110 @@ st.markdown("""
     .custom-metric-value {
         font-size: 2rem !important;
         font-weight: 700 !important;
-        letter-spacing: -0.02em;
-        color: #e0e4ed !important;
-    }
-    .profit { color: #00f5a0 !important; }
-    .loss { color: #ff6b6b !important; }
-
-    /* Sidebar */
-    .stSidebar, .css-1d391kg {
-        background: rgba(10, 14, 20, 0.92) !important;
-        backdrop-filter: blur(12px);
-        border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+        color: #111827 !important;
     }
 
-    /* Headings */
+    /* ----- P&L Colors ----- */
+    .profit { color: #16a34a !important; }
+    .loss { color: #dc2626 !important; }
+
+    /* ----- Sidebar (Light) ----- */
+    [data-testid="stSidebar"] {
+        background-color: #f8fafc !important;
+        border-right: 1px solid #e5e7eb !important;
+    }
+    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
+        color: #1f2937 !important;
+    }
+
+    /* ----- Headings ----- */
     h1, h2, h3, .stSubheader {
-        color: #e6edf5 !important;
+        color: #111827 !important;
         font-weight: 600 !important;
     }
     h1 {
-        background: linear-gradient(135deg, #00b4d8, #7c3aed);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5rem !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        background: none !important;
     }
 
-    /* Buttons */
+    /* ----- Buttons ----- */
     .stButton>button {
         border-radius: 8px !important;
         font-weight: 500 !important;
-        transition: all 0.2s;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(255, 255, 255, 0.04) !important;
-        color: #c8d6e8 !important;
+        background: #ffffff !important;
+        color: #1f2937 !important;
+        border: 1px solid #d1d5db !important;
+        transition: all 0.15s;
     }
     .stButton>button:hover {
-        border-color: #00b4d8 !important;
-        box-shadow: 0 0 24px rgba(0, 180, 216, 0.08);
-        transform: scale(1.02);
+        border-color: #3b82f6 !important;
+        background: #f8fafc !important;
     }
     .stButton>button[kind="primary"] {
-        background: linear-gradient(135deg, #00b4d8, #7c3aed) !important;
+        background: #3b82f6 !important;
         border: none !important;
         color: white !important;
     }
+    .stButton>button[kind="primary"]:hover {
+        background: #2563eb !important;
+    }
 
-    /* Progress Bar */
+    /* ----- Progress Bar ----- */
     .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #00b4d8, #7c3aed) !important;
+        background: #3b82f6 !important;
+    }
+
+    /* ----- Inputs / Selects ----- */
+    .stTextInput > div > div > input, 
+    .stNumberInput > div > div > input, 
+    .stSelectbox > div > div {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #d1d5db !important;
         border-radius: 8px !important;
     }
 
-    /* AgGrid Dark Theme */
-    .ag-theme-alpine-dark {
-        --ag-background-color: rgba(12, 20, 40, 0.8) !important;
-        --ag-header-background-color: rgba(0, 10, 30, 0.6) !important;
-        --ag-border-color: rgba(255, 255, 255, 0.06) !important;
-        --ag-foreground-color: #d0dcec !important;
-        --ag-row-hover-color: rgba(0, 180, 216, 0.05) !important;
-        --ag-selected-row-background-color: rgba(124, 58, 237, 0.08) !important;
+    /* ----- AgGrid (Light Theme) ----- */
+    .ag-theme-alpine {
+        --ag-background-color: #ffffff !important;
+        --ag-header-background-color: #f9fafb !important;
+        --ag-foreground-color: #111827 !important;
+        --ag-border-color: #e5e7eb !important;
+        --ag-row-hover-color: #f3f4f6 !important;
+        --ag-selected-row-background-color: #eff6ff !important;
+        border: 1px solid #e5e7eb !important;
         border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.04) !important;
     }
 
-    /* Cash Flow Banner */
+    /* ----- Cash Flow Banner ----- */
     .cash-flow-banner {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important;
+        background: #f9fafb !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 8px !important;
         padding: 0.75rem 1.5rem !important;
         margin-bottom: 0.5rem;
-        color: #c8d6e8 !important;
+        color: #111827 !important;
     }
 
-    /* Dropdowns, inputs – keep dark */
-    .stSelectbox, .stTextInput, .stNumberInput {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-        color: #e0e4ed !important;
-    }
-    .stSelectbox > div, .stTextInput > div, .stNumberInput > div {
-        background: transparent !important;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
-    ::-webkit-scrollbar-thumb { background: rgba(0, 180, 216, 0.2); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 180, 216, 0.4); }
-
-    /* Alerts */
+    /* ----- Alerts ----- */
     .stAlert {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 10px !important;
+        background: #f9fafb !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 8px !important;
+    }
+
+    /* ----- Scrollbar ----- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    /* ----- Option Menu (Light override) ----- */
+    .nav-link-selected {
+        background-color: #eff6ff !important;
+        color: #1f2937 !important;
+        border-left: 3px solid #3b82f6 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -168,7 +172,7 @@ def metric_box(label, content_html):
     return f'<div class="custom-metric"><div class="custom-metric-label">{label}</div>{content_html}</div>'
 
 def white_val(value, fmt="${:,.2f}"):
-    return f'<div class="custom-metric-value" style="color:#e0e4ed">{fmt.format(value)}</div>'
+    return f'<div class="custom-metric-value" style="color:#111827">{fmt.format(value)}</div>'
 
 # ---------- Data Sanitizer ----------
 def sanitize_df(df):
@@ -204,7 +208,7 @@ def main():
     if "confirm_clear_errors" not in st.session_state: st.session_state.confirm_clear_errors = False
     if "confirm_reset" not in st.session_state: st.session_state.confirm_reset = False
 
-    # ====== SIDEBAR (with Option Menu) ======
+    # ====== SIDEBAR ======
     with st.sidebar:
         st.image("https://img.icons8.com/fluency/48/000000/trading-bot.png", width=40)
         st.markdown("### APEX DASHBOARD")
@@ -233,20 +237,20 @@ def main():
             default_index=0,
             styles={
                 "container": {"padding": "0!important", "background-color": "transparent"},
-                "icon": {"color": "#00b4d8", "font-size": "18px"},
+                "icon": {"color": "#3b82f6", "font-size": "18px"},
                 "nav-link": {
                     "font-size": "14px",
                     "text-align": "left",
                     "margin": "2px 0px",
                     "border-radius": "6px",
                     "padding": "8px 12px",
-                    "color": "#8b92a8",
+                    "color": "#4b5563",
                 },
                 "nav-link-selected": {
-                    "background-color": "rgba(0, 180, 216, 0.08)",
-                    "color": "#e0e4ed",
+                    "background-color": "#eff6ff",
+                    "color": "#1f2937",
                     "font-weight": "600",
-                    "border-left": "3px solid #00b4d8",
+                    "border-left": "3px solid #3b82f6",
                 },
             },
             key="menu_widget",
@@ -328,18 +332,18 @@ def main():
     with c5: st.markdown(metric_box("Active Bots", white_val(active_bots, "{:,.0f}")), unsafe_allow_html=True)
     with c6: st.markdown(metric_box("Portfolio Value", white_val(portfolio_val)), unsafe_allow_html=True)
 
-    flow_color = "#00f5a0" if daily_cash_flow >= 0 else "#ff6b6b"
+    flow_color = "#16a34a" if daily_cash_flow >= 0 else "#dc2626"
     sign = "+" if daily_cash_flow >= 0 else ""
     st.markdown(
         f'<div class="cash-flow-banner">'
         f'📅 Today\'s cash flow: <span style="color:{flow_color};font-weight:600">'
         f'{sign}${daily_cash_flow:,.2f}</span> &nbsp;'
-        f'<span style="color:#8b92a8;font-size:0.85rem">'
+        f'<span style="color:#6b7280;font-size:0.85rem">'
         f'(negative = buying inventory – held: ${inventory_cost:,.2f})</span>'
         f'</div>', unsafe_allow_html=True)
     st.divider()
 
-    # ====== RENDER CONTENT BASED ON MENU CHOICE ======
+    # ====== RENDER CONTENT ======
     choice = menu_choice
 
     # ------------------------------------------------
@@ -389,7 +393,7 @@ def main():
                 gb.configure_default_column(editable=False, filter=True, sortable=True)
                 grid_options = gb.build()
                 AgGrid(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']],
-                       gridOptions=grid_options, theme='alpine-dark', height=300, fit_columns_on_grid_load=True)
+                       gridOptions=grid_options, theme='alpine', height=300, fit_columns_on_grid_load=True)
             else:
                 st.warning("No bot status records found.")
 
@@ -399,20 +403,20 @@ def main():
             st.subheader("Live Portfolio & Unrealized P&L")
             if not df_pos.empty:
                 fig = px.pie(df_pos, values='market_value', names='symbol', hole=0.4, title="Asset Allocation")
-                fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                 st.plotly_chart(fig, width='stretch')
                 gb = GridOptionsBuilder.from_dataframe(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']])
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("unrealized_pl", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#16a34a;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#dc2626;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
                 grid_options = gb.build()
                 AgGrid(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']],
-                       gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True,
+                       gridOptions=grid_options, theme='alpine', height=350, fit_columns_on_grid_load=True,
                        allow_unsafe_jscode=True)
                 st.metric("Total Portfolio Value", f"${df_pos['market_value'].sum():,.2f}", delta=f"${df_pos['unrealized_pl'].sum():,.2f} unrealized")
             else:
@@ -428,7 +432,7 @@ def main():
                 gb = GridOptionsBuilder.from_dataframe(db_orders[cols])
                 gb.configure_pagination(paginationAutoPageSize=True)
                 grid_options = gb.build()
-                AgGrid(db_orders[cols], gridOptions=grid_options, theme='alpine-dark', height=300, fit_columns_on_grid_load=True)
+                AgGrid(db_orders[cols], gridOptions=grid_options, theme='alpine', height=300, fit_columns_on_grid_load=True)
             else:
                 st.info("No bot-tracked open orders.")
             st.divider()
@@ -438,7 +442,7 @@ def main():
                 gb.configure_pagination(paginationAutoPageSize=True)
                 grid_options = gb.build()
                 AgGrid(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']],
-                       gridOptions=grid_options, theme='alpine-dark', height=300, fit_columns_on_grid_load=True)
+                       gridOptions=grid_options, theme='alpine', height=300, fit_columns_on_grid_load=True)
                 sel_id = st.selectbox("Select order to cancel", live_orders['id'].tolist(), key="cancel_select")
                 if st.button("Cancel Selected Order"):
                     st.warning("Cancellation code not implemented in this snippet.")
@@ -463,8 +467,8 @@ def main():
                 df_eq = df_eq.sort_values('timestamp')
                 df_eq['net_cash'] = df_eq.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
                 df_eq['cum_pnl'] = df_eq['net_cash'].cumsum()
-                fig = px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow (sells - buys)")
-                fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                fig = px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow")
+                fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                 st.plotly_chart(fig, width='stretch')
                 st.caption("Note: this chart goes negative when bots are accumulating inventory. That is expected for grid bots.")
             else:
@@ -496,7 +500,7 @@ def main():
                 gb = GridOptionsBuilder.from_dataframe(error_df)
                 gb.configure_pagination(paginationAutoPageSize=True)
                 grid_options = gb.build()
-                AgGrid(error_df, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True)
+                AgGrid(error_df, gridOptions=grid_options, theme='alpine', height=400, fit_columns_on_grid_load=True)
             else:
                 st.success("✅ No errors logged.")
 
@@ -523,13 +527,13 @@ def main():
                     gb.configure_pagination(paginationAutoPageSize=True)
                     gb.configure_column("Realized P&L", cellRenderer=JsCode("""
                         function(params) {
-                            if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                            else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                            if (params.value > 0) return '<span style="color:#16a34a;">+$' + params.value.toFixed(2) + '</span>';
+                            else if (params.value < 0) return '<span style="color:#dc2626;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                             else return '$0.00';
                         }
                     """))
                     grid_options = gb.build()
-                    AgGrid(summary, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
+                    AgGrid(summary, gridOptions=grid_options, theme='alpine', height=400, fit_columns_on_grid_load=True,
                            allow_unsafe_jscode=True)
                     st.divider()
                     for bot_name, stats in fifo.items():
@@ -547,12 +551,12 @@ def main():
                                 st.success("✅ All positions closed — clean state")
                     chart_data = pd.DataFrame(list(fifo.values()))
                     fig = px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot", color='realized_pnl', color_continuous_scale='RdYlGn')
-                    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                    fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                     st.plotly_chart(fig, width='stretch')
                     fig_wl = go.Figure()
                     fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#4ade80'))
                     fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#f87171'))
-                    fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                    fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group', plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                     st.plotly_chart(fig_wl, width='stretch')
 
     # ------------------------------------------------
@@ -569,7 +573,7 @@ def main():
                 gb.configure_column("price", type=["numericColumn"])
                 gb.configure_column("quantity", type=["numericColumn"])
                 grid_options = gb.build()
-                AgGrid(filtered[cols], gridOptions=grid_options, theme='alpine-dark', height=450, fit_columns_on_grid_load=True)
+                AgGrid(filtered[cols], gridOptions=grid_options, theme='alpine', height=450, fit_columns_on_grid_load=True)
                 st.download_button("Export CSV", filtered.to_csv(index=False), "trades.csv", key="export_trades")
             else:
                 st.info("No trades logged yet.")
@@ -593,13 +597,13 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 gb.configure_pagination(paginationAutoPageSize=True)
                 gb.configure_column("Live Net P&L", cellRenderer=JsCode("""
                     function(params) {
-                        if (params.value > 0) return '<span style="color:#00f5a0;">+$' + params.value.toFixed(2) + '</span>';
-                        else if (params.value < 0) return '<span style="color:#ff6b6b;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
+                        if (params.value > 0) return '<span style="color:#16a34a;">+$' + params.value.toFixed(2) + '</span>';
+                        else if (params.value < 0) return '<span style="color:#dc2626;">-$' + Math.abs(params.value).toFixed(2) + '</span>';
                         else return '$0.00';
                     }
                 """))
                 grid_options = gb.build()
-                AgGrid(ren, gridOptions=grid_options, theme='alpine-dark', height=400, fit_columns_on_grid_load=True,
+                AgGrid(ren, gridOptions=grid_options, theme='alpine', height=400, fit_columns_on_grid_load=True,
                        allow_unsafe_jscode=True)
 
     # ------------------------------------------------
@@ -613,14 +617,14 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 df['net_cash'] = df.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
                 df = df.sort_values(['bot_name','timestamp'])
                 df['cum_pnl'] = df.groupby('bot_name')['net_cash'].cumsum()
-                fig = px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow", labels={'cum_pnl':'Cash Flow (USD)'})
-                fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                fig = px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow")
+                fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                 st.plotly_chart(fig, width='stretch')
                 bots = df['bot_name'].unique().tolist()
                 sel = st.multiselect("Filter bots", bots, default=bots, key="bot_line_filter")
                 if sel:
                     fig2 = px.line(df[df['bot_name'].isin(sel)], x='timestamp', y='cum_pnl', color='bot_name', title="Filtered")
-                    fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                    fig2.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                     st.plotly_chart(fig2, width='stretch')
             else:
                 st.info("No trade data yet.")
@@ -644,10 +648,10 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                     gb = GridOptionsBuilder.from_dataframe(debug_df)
                     gb.configure_pagination(paginationAutoPageSize=True)
                     grid_options = gb.build()
-                    AgGrid(debug_df, gridOptions=grid_options, theme='alpine-dark', height=350, fit_columns_on_grid_load=True)
+                    AgGrid(debug_df, gridOptions=grid_options, theme='alpine', height=350, fit_columns_on_grid_load=True)
                     debug_df['cum_pnl'] = debug_df['pnl'].cumsum()
                     fig = px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L")
-                    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                    fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                     st.plotly_chart(fig, width='stretch')
 
     # ------------------------------------------------
@@ -662,15 +666,15 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
                 if daily_df.empty:
                     st.info("No daily data.")
                 else:
-                    fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot", labels={'daily_pnl':'Daily P&L (USD)','date':'Date'}, barmode='group')
-                    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+                    fig = px.bar(daily_df, x='date', y='daily_pnl', color='bot_name', title="Daily P&L by Bot")
+                    fig.update_layout(plot_bgcolor='rgba(255,255,255,0)', paper_bgcolor='rgba(255,255,255,0)')
                     st.plotly_chart(fig, width='stretch')
                     pivot = daily_df.pivot(index='date', columns='bot_name', values='daily_pnl').fillna(0)
-                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #00f5a0' if v > 0 else 'color: #ff6b6b' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
+                    st.dataframe(pivot.style.format("{:,.2f}").map(lambda v: 'color: #16a34a' if v > 0 else 'color: #dc2626' if v < 0 else '', subset=pd.IndexSlice[:, :]), width='stretch')
                     st.subheader("Total Realized P&L per Bot")
                     total_per_bot = daily_df.groupby('bot_name')['daily_pnl'].sum().reset_index()
                     total_per_bot.columns = ['bot_name', 'Total P&L']
-                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #00f5a0' if v > 0 else 'color: #ff6b6b' if v < 0 else '', subset=['Total P&L']), width='stretch')
+                    st.dataframe(total_per_bot.style.format({'Total P&L': '${:,.2f}'}).map(lambda v: 'color: #16a34a' if v > 0 else 'color: #dc2626' if v < 0 else '', subset=['Total P&L']), width='stretch')
 
 if __name__ == "__main__":
     main()
