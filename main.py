@@ -24,240 +24,57 @@ st.set_page_config(
 
 # ========== NEON AURORA CSS ==========
 st.markdown("""
+st.markdown("""
 <style>
-    /* ----- Font ----- */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-    /* ----- Main Background (Deep Space Gradient) ----- */
+    /* ----- Ergonomic Background ----- */
     .stApp, .main {
-        background: radial-gradient(ellipse at 20% 50%, #0f1a2e 0%, #080c18 100%) !important;
+        background-color: #0d1117 !important;
+        color: #c9d1d9 !important;
     }
 
-    /* ----- Glassmorphism Metric Cards ----- */
+    /* ----- Soft Glassmorphism Metric Cards ----- */
     .custom-metric {
-        background: rgba(255, 255, 255, 0.04) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
-        border-radius: 16px !important;
-        padding: 1.4rem 1rem !important;
+        background: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 12px !important;
+        padding: 1.2rem !important;
         text-align: center;
-        transition: all 0.25s ease-in-out;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        position: relative;
-        overflow: hidden;
-    }
-    /* Glow border on hover */
-    .custom-metric::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 16px;
-        padding: 1px;
-        background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), rgba(150, 80, 255, 0.1));
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    .custom-metric:hover::before {
-        opacity: 1;
+        transition: border-color 0.2s;
     }
     .custom-metric:hover {
-        transform: translateY(-3px);
-        border-color: rgba(0, 180, 216, 0.2) !important;
-        box-shadow: 0 12px 48px rgba(0, 180, 216, 0.08);
+        border-color: #58a6ff !important;
     }
-
     .custom-metric-label {
-        color: #8896b5 !important;
-        font-size: 0.75rem !important;
+        color: #8b949e !important;
+        font-size: 0.7rem !important;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        font-weight: 600;
-        margin-bottom: 0.4rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
     }
     .custom-metric-value {
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em;
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #e6edf3 !important;
     }
 
-    /* ----- Profit / Loss Colors (Vibrant) ----- */
-    .profit {
-        color: #00f5a0 !important;
-        text-shadow: 0 0 20px rgba(0, 245, 160, 0.15);
-    }
-    .loss {
-        color: #ff6b8a !important;
-        text-shadow: 0 0 20px rgba(255, 107, 138, 0.15);
-    }
+    /* ----- Readable P&L Colors ----- */
+    .profit { color: #3fb950 !important; }
+    .loss { color: #f85149 !important; }
 
-    /* ----- Sidebar (Dark Blue) ----- */
-    .stSidebar, .css-1d391kg {
-        background: rgba(10, 18, 36, 0.92) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
-    }
-    .stSidebar h1, .stSidebar h2, .stSidebar h3 {
-        color: #e8edf5 !important;
-    }
-
-    /* ----- Headings (Gradient Cyan to Purple) ----- */
-    h1 {
-        font-weight: 700 !important;
-        background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-        font-size: 2.5rem !important;
-        letter-spacing: -0.02em;
-    }
-    h2, h3, .stSubheader {
-        color: #e0e8f5 !important;
+    /* ----- Headings ----- */
+    h1, h2, h3 {
+        color: #e6edf3 !important;
         font-weight: 600 !important;
     }
 
-    /* ----- Buttons (Neon Accents) ----- */
-    .stButton>button {
-        border-radius: 8px !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(255, 255, 255, 0.04) !important;
-        color: #c8d6e8 !important;
-    }
-    .stButton>button:hover {
-        transform: scale(1.02);
-        border-color: #00d4ff !important;
-        box-shadow: 0 0 24px rgba(0, 212, 255, 0.1);
-        background: rgba(0, 212, 255, 0.06) !important;
-    }
-    .stButton>button:active {
-        transform: scale(0.98);
-    }
-    .stButton>button[kind="primary"] {
-        background: linear-gradient(135deg, #00b4d8, #7c3aed) !important;
-        border: none !important;
-        color: white !important;
-        font-weight: 600 !important;
-    }
-    .stButton>button[kind="primary"]:hover {
-        box-shadow: 0 0 32px rgba(124, 58, 237, 0.25) !important;
-        transform: scale(1.02);
-    }
-
-    /* ----- Progress Bar (Gradient) ----- */
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #00d4ff, #7c3aed) !important;
-        border-radius: 8px !important;
-    }
-
-    /* ----- DataFrames & Tables ----- */
-    .stDataFrame, .stTable {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.04) !important;
-    }
-
-    /* ----- AgGrid Theme Override ----- */
+    /* ----- Tables & Grids ----- */
     .ag-theme-alpine-dark {
-        --ag-background-color: rgba(12, 20, 40, 0.8) !important;
-        --ag-header-background-color: rgba(0, 10, 30, 0.6) !important;
-        --ag-border-color: rgba(255, 255, 255, 0.06) !important;
-        --ag-foreground-color: #d0dcec !important;
-        --ag-row-hover-color: rgba(0, 212, 255, 0.05) !important;
-        --ag-selected-row-background-color: rgba(124, 58, 237, 0.08) !important;
-        --ag-font-family: 'Inter', sans-serif !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.04) !important;
-    }
-
-    /* ----- Metric Cards (Streamlit native) ----- */
-    [data-testid="stMetricValue"] {
-        color: #e8edf5 !important;
-        font-weight: 600 !important;
-    }
-    [data-testid="stMetricDelta"] {
-        font-weight: 500 !important;
-    }
-
-    /* ----- Tabs / Expanders ----- */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 4px;
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 12px;
-        padding: 4px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 8px 16px;
-        color: #8896b5 !important;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-    .stTabs [aria-selected="true"] {
-        background: rgba(0, 212, 255, 0.08) !important;
-        color: #00d4ff !important;
-    }
-    .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(255, 255, 255, 0.04);
-    }
-
-    /* ----- Expanders ----- */
-    .streamlit-expanderHeader {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(255, 255, 255, 0.04) !important;
-        color: #c8d6e8 !important;
-    }
-
-    /* ----- Select Boxes, Inputs ----- */
-    .stSelectbox, .stTextInput, .stNumberInput {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-        color: #e0e8f5 !important;
-    }
-
-    /* ----- Scrollbar ----- */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: rgba(0, 212, 255, 0.2);
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(0, 212, 255, 0.4);
-    }
-
-    /* ----- "Today's Cash Flow" Banner ----- */
-    .cash-flow-banner {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1.5rem !important;
-        margin-bottom: 0.5rem;
-        color: #c8d6e8 !important;
-    }
-
-    /* ----- Alert boxes ----- */
-    .stAlert {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(4px);
+        --ag-background-color: #0d1117 !important;
+        --ag-header-background-color: #161b22 !important;
+        --ag-foreground-color: #c9d1d9 !important;
+        --ag-border-color: #30363d !important;
     }
 </style>
 """, unsafe_allow_html=True)
