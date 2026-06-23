@@ -25,18 +25,37 @@ st.set_page_config(
 # ========== YOUR CUSTOM DARK CSS ==========
 st.markdown("""
 <style>
-    /* 1. Global Page Background - Set to deepest dark */
-    .stApp, .main, [data-testid="stAppViewContainer"] {
+    /* ----- FORCE DARK BACKGROUND ON EVERYTHING ----- */
+    html, body, .stApp, .main, [data-testid="stAppViewContainer"],
+    [data-testid="stHeader"], [data-testid="stToolbar"],
+    [data-testid="stDecoration"], [data-testid="stBottom"],
+    [data-testid="stVerticalBlock"], [data-testid="stHorizontalBlock"],
+    .st-emotion-cache-1r6slb0, .st-emotion-cache-6qob1r {
         background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
     }
 
-    /* 2. Force Sidebar to match */
-    [data-testid="stSidebar"] {
+    /* ----- KILL THE WHITE SIDEBAR ----- */
+    [data-testid="stSidebar"], [data-testid="stSidebarContent"] {
         background-color: #0B0E14 !important;
         border-right: 1px solid #1E293B !important;
     }
 
-    /* 3. Force all Input Boxes and Selectboxes to Dark */
+    /* ----- FORCE ALL TEXT TO BE LIGHT ----- */
+    h1, h2, h3, h4, h5, h6, p, span, div, label, .stMarkdown {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- FIX DROPDOWNS (Selectbox popups) ----- */
+    [data-baseweb="popover"], [data-baseweb="popover"] div,
+    [role="listbox"], [role="listbox"] div,
+    .stSelectbox div, .stSelectbox ul {
+        background-color: #151921 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- FIX INPUT BOXES ----- */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input, 
     .stSelectbox > div > div {
@@ -46,22 +65,41 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* 4. Fix the Metrics area and text colors */
-    [data-testid="stMetricValue"], [data-testid="stMetricLabel"], h1, h2, h3, p, span {
+    /* ----- FIX METRICS & CARDS ----- */
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"],
+    .stMetric, .stMetric div {
         color: #E2E8F0 !important;
-    }
-
-    /* 5. Force the "Canvas" area to be transparent */
-    [data-testid="stVerticalBlock"] {
         background-color: transparent !important;
     }
 
-    /* 6. Clean up the Sidebar text */
-    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
-        color: #94A3B8 !important;
+    /* ----- FIX PLOTLY CHARTS (KILL WHITE BACKGROUND) ----- */
+    .js-plotly-plot, .plotly, .plotly-container,
+    .main-svg, .cartesianlayer, .gridlayer, .svg-container {
+        background-color: transparent !important;
+    }
+    .plotly .bg {
+        fill: transparent !important;
+    }
+    .plotly .plot-container {
+        background: transparent !important;
     }
 
-    /* 7. Custom Metric Cards (matching your dark theme) */
+    /* ----- FIX AGGIRD (Tables) ----- */
+    .ag-theme-alpine-dark {
+        --ag-background-color: #0B0E14 !important;
+        --ag-header-background-color: #151921 !important;
+        --ag-foreground-color: #E2E8F0 !important;
+        --ag-border-color: #1E293B !important;
+        --ag-row-hover-color: #1E293B !important;
+        --ag-selected-row-background-color: #1E293B !important;
+        --ag-modal-overlay-background-color: #0B0E14 !important;
+        --ag-popup-background-color: #151921 !important;
+    }
+    .ag-root-wrapper, .ag-root, .ag-body-viewport {
+        background-color: #0B0E14 !important;
+    }
+
+    /* ----- YOUR CUSTOM METRIC CARDS ----- */
     .custom-metric {
         background: #151921 !important;
         border: 1px solid #1E293B !important;
@@ -86,11 +124,11 @@ st.markdown("""
         color: #E2E8F0 !important;
     }
 
-    /* 8. P&L Colors */
+    /* ----- P&L COLORS ----- */
     .profit { color: #22C55E !important; }
     .loss { color: #EF4444 !important; }
 
-    /* 9. Buttons */
+    /* ----- BUTTONS ----- */
     .stButton>button {
         border-radius: 8px !important;
         font-weight: 500 !important;
@@ -104,12 +142,12 @@ st.markdown("""
         background: #1E293B !important;
     }
 
-    /* 10. Progress Bar */
+    /* ----- PROGRESS BAR ----- */
     .stProgress > div > div > div > div {
         background: #3B82F6 !important;
     }
 
-    /* 11. Cash Flow Banner */
+    /* ----- CASH FLOW BANNER ----- */
     .cash-flow-banner {
         background: #151921 !important;
         border: 1px solid #1E293B !important;
@@ -119,27 +157,23 @@ st.markdown("""
         color: #E2E8F0 !important;
     }
 
-    /* 12. AgGrid Theme Override */
-    .ag-theme-alpine-dark {
-        --ag-background-color: #0B0E14 !important;
-        --ag-header-background-color: #151921 !important;
-        --ag-foreground-color: #E2E8F0 !important;
-        --ag-border-color: #1E293B !important;
-        --ag-row-hover-color: #1E293B !important;
-        --ag-selected-row-background-color: #1E293B !important;
+    /* ----- ALERT / WARNING BOXES ----- */
+    .stAlert, .stWarning, .stInfo, .stSuccess, .stError {
+        background: #151921 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+        color: #E2E8F0 !important;
     }
 
-    /* 13. Scrollbar */
+    /* ----- SCROLLBAR ----- */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0B0E14; }
     ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
 
-    /* 14. Alert boxes */
-    .stAlert {
-        background: #151921 !important;
-        border: 1px solid #1E293B !important;
-        border-radius: 8px !important;
+    /* ----- SIDEBAR TEXT ----- */
+    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
+        color: #94A3B8 !important;
     }
 </style>
 """, unsafe_allow_html=True)
