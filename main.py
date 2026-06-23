@@ -1676,7 +1676,13 @@ def main():
     df_pos = db.get_unified_portfolio()
     live_orders = db.get_live_exchange_orders()
     backtest_df = db.get_backtest_results()
-    db_orders = db.get_open_orders_from_db()
+    db_orders = db.get_open_orders_from_db()trades_df = db.load_trades()
+# ... other loads ...
+
+# 👇 DEBUG
+st.sidebar.write("### 📊 Debug")
+st.sidebar.write(f"Trades loaded: {len(trades_df)}")
+
 
     # Apply sanitizer to all DataFrames
     trades_df = sanitize_df(trades_df)
