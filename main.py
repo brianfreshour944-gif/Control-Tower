@@ -25,25 +25,40 @@ st.set_page_config(
 # ========== SOFT DARK CSS (GitHub-Inspired) ==========
 st.markdown("""
 <style>
-    /* Force background everywhere */
-    .stApp, 
-    .stApp [data-testid="stAppViewContainer"], 
-    .stApp [data-testid="stSidebar"],
-    .stApp [data-testid="stToolbar"],
-    .stApp div[class^="css-"],
-    .stApp div[class*="css-"] {
+    /* 1. Global Page Background - Set to deepest dark */
+    .stApp, .main, [data-testid="stAppViewContainer"] {
         background-color: #0B0E14 !important;
     }
 
-    /* Force input fields to be dark */
-    input, textarea, div[data-baseweb="select"] {
+    /* 2. Force Sidebar to match */
+    [data-testid="stSidebar"] {
+        background-color: #0B0E14 !important;
+        border-right: 1px solid #1E293B !important;
+    }
+
+    /* 3. Force all Input Boxes and Selectboxes to Dark */
+    .stTextInput > div > div > input, 
+    .stNumberInput > div > div > input, 
+    .stSelectbox > div > div {
         background-color: #151921 !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #334155 !important;
+        border-radius: 8px !important;
+    }
+
+    /* 4. Fix the Metrics area and text colors */
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"], h1, h2, h3, p, span {
         color: #E2E8F0 !important;
     }
 
-    /* Target the specific "white" sidebar container */
-    [data-testid="stSidebar"] {
-        background-color: #0B0E14 !important;
+    /* 5. Force the "Canvas" area to be transparent */
+    [data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
+    }
+
+    /* 6. Clean up the Sidebar text */
+    [data-testid="stSidebar"] div, [data-testid="stSidebar"] span {
+        color: #94A3B8 !important;
     }
 </style>
 """, unsafe_allow_html=True)
