@@ -1589,7 +1589,7 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("⚙️ Control Panel")
-        if st.button("🔄 Refresh All Data", use_container_width=True):
+        if st.button("🔄 Refresh All Data", width='stretch'):  # FIXED 2026
             st.cache_data.clear()
             st.session_state.last_refresh = datetime.now()
             st.rerun()
@@ -1600,32 +1600,32 @@ def main():
         st.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
         st.divider()
         
-        if st.button("🗑️ Reset All Trading Stats", type="secondary", use_container_width=True):
+        if st.button("🗑️ Reset All Trading Stats", type="secondary", width='stretch'):  # FIXED 2026
             st.session_state.show_reset_confirm = True
 
         if st.session_state.get("show_reset_confirm"):
             st.warning("⚠️ Are you sure? This will DELETE all trades and reset daily loss.")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("✅ Yes, Reset Everything", type="primary", use_container_width=True):
+                if st.button("✅ Yes, Reset Everything", type="primary", width='stretch'):  # FIXED 2026
                     db.reset_all_trading_stats()
                     st.session_state.show_reset_confirm = False
                     st.rerun()
             with c2:
-                if st.button("❌ Cancel", key="cancel_reset", use_container_width=True):
+                if st.button("❌ Cancel", key="cancel_reset", width='stretch'):  # FIXED 2026
                     st.session_state.show_reset_confirm = False
                     st.rerun()
 
         st.divider()
         
-        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", use_container_width=True):
+        if st.button("🛑 EMERGENCY STOP ALL", type="secondary", width='stretch'):  # FIXED 2026
             st.session_state.show_stop_confirm = True
 
         if st.session_state.get("show_stop_confirm"):
             st.error("🚨 STOP ALL BOTS?")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("🛑 YES, STOP ALL", type="primary", use_container_width=True):
+                if st.button("🛑 YES, STOP ALL", type="primary", width='stretch'):  # FIXED 2026
                     with db.get_db_engine().connect() as conn:
                         conn.execute(text("UPDATE bot_status SET status = 'STOP'"))
                         conn.commit()
@@ -1633,7 +1633,7 @@ def main():
                     st.success("All bots stopped")
                     st.rerun()
             with c2:
-                if st.button("❌ Cancel", key="cancel_stop", use_container_width=True):
+                if st.button("❌ Cancel", key="cancel_stop", width='stretch'):  # FIXED 2026
                     st.session_state.show_stop_confirm = False
                     st.rerun()
 
@@ -1727,7 +1727,7 @@ def main():
                     st.rerun()
             except:
                 st.warning("No valid config JSON")
-            st.dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']], use_container_width=True)
+            st.dataframe(status_df[['bot_name', 'status', 'daily_loss', 'daily_loss_limit']], width='stretch')  # FIXED 2026
         else:
             st.warning("No bot status records found.")
 
@@ -1736,9 +1736,9 @@ def main():
         st.subheader("Live Portfolio & Unrealized P&L")
         if not df_pos.empty:
             fig_pie = px.pie(df_pos, values='market_value', names='symbol', hole=0.4, title="Asset Allocation")
-            st.plotly_chart(style_plotly_fig(fig_pie), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_pie), width='stretch')  # FIXED 2026
             st.dataframe(df_pos[['source','symbol','quantity','avg_entry','current_price','market_value','unrealized_pl']]
-                         .style.format({'quantity':'{:.4f}','avg_entry':'${:.2f}','current_price':'${:.2f}','market_value':'${:,.2f}','unrealized_pl':'${:,.2f}'}), use_container_width=True)
+                         .style.format({'quantity':'{:.4f}','avg_entry':'${:.2f}','current_price':'${:.2f}','market_value':'${:,.2f}','unrealized_pl':'${:,.2f}'}), width='stretch')  # FIXED 2026
             st.metric("Total Portfolio Value", f"${df_pos['market_value'].sum():,.2f}", delta=f"${df_pos['unrealized_pl'].sum():,.2f} unrealized")
         else:
             st.info("No open positions found.")
@@ -1749,13 +1749,13 @@ def main():
         if not db_orders.empty:
             cols = ['order_id','bot_name','symbol','side','price']
             if 'created_at' in db_orders.columns: cols.append('created_at')
-            st.dataframe(db_orders[cols], use_container_width=True)
+            st.dataframe(db_orders[cols], width='stretch')  # FIXED 2026
         else:
             st.info("No bot-tracked open orders.")
         st.divider()
         st.subheader("Live Exchange Orders")
         if not live_orders.empty:
-            st.dataframe(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']], use_container_width=True)
+            st.dataframe(live_orders[['exchange','id','symbol','side','type','qty','limit_price','bot_name']], width='stretch')  # FIXED 2026
             sel_id = st.selectbox("Select order to cancel", live_orders['id'].tolist(), key="cancel_select")
             if st.button("Cancel Selected Order"):
                 # Cancellation requires trading clients – you may need to import them again
@@ -1783,7 +1783,7 @@ def main():
             df_eq['net_cash'] = df_eq.apply(lambda r: r['value']-r['fee'] if r['side']=='SELL' else -r['value']-r['fee'], axis=1)
             df_eq['cum_pnl'] = df_eq['net_cash'].cumsum()
             fig_cum = px.line(df_eq, x='timestamp', y='cum_pnl', title="Cumulative Cash Flow (sells - buys)")
-            st.plotly_chart(style_plotly_fig(fig_cum), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_cum), width='stretch')  # FIXED 2026
             st.caption("Note: this chart goes negative when bots are accumulating inventory. That is expected for grid bots.")
         else:
             st.info("No trade data yet.")
@@ -1792,7 +1792,7 @@ def main():
     with tab5:
         st.subheader("🚨 Error Observatory")
         if not error_df.empty:
-            st.dataframe(error_df, use_container_width=True)
+            st.dataframe(error_df, width='stretch')  # FIXED 2026
         else:
             st.success("✅ No errors logged.")
 
@@ -1809,7 +1809,7 @@ def main():
             })
             st.dataframe(summary.style.format({
                 'Win Rate %':'{:.2f}%','Realized P&L':'${:,.2f}','Inventory Cost Basis':'${:,.2f}','Inventory Qty':'{:.6f}'
-            }).map(lambda v: 'color:#00ff9d' if isinstance(v, float) and v > 0 else 'color:#ff4d4d' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), use_container_width=True)
+            }).map(lambda v: 'color:#00ff9d' if isinstance(v, float) and v > 0 else 'color:#ff4d4d' if isinstance(v, float) and v < 0 else '', subset=['Realized P&L']), width='stretch')  # FIXED 2026
             st.divider()
             for bot_name, stats in fifo.items():
                 pnl = stats['realized_pnl']
@@ -1827,13 +1827,13 @@ def main():
             # Charts
             chart_data = pd.DataFrame(list(fifo.values()))
             fig_pnl_bar = px.bar(chart_data, x='bot_name', y='realized_pnl', title="Realized P&L per Bot (FIFO closed trades only)", color='realized_pnl', color_continuous_scale='RdYlGn')
-            st.plotly_chart(style_plotly_fig(fig_pnl_bar), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_pnl_bar), width='stretch')  # FIXED 2026
             
             fig_wl = go.Figure()
             fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['win_rate'], name='Win %', marker_color='#10B981'))
             fig_wl.add_trace(go.Bar(x=chart_data['bot_name'], y=chart_data['losses']/chart_data['total_closed'].replace(0,1)*100, name='Loss %', marker_color='#F43F5E'))
             fig_wl.update_layout(title="Win / Loss % per Bot", barmode='group')
-            st.plotly_chart(style_plotly_fig(fig_wl), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_wl), width='stretch')  # FIXED 2026
 
     # === TAB 7: TRADE HISTORY ===
     with tab7:
@@ -1842,7 +1842,7 @@ def main():
             bot_filter = st.multiselect("Filter by Bot", trades_df['bot_name'].unique().tolist(), key="history_filter")
             filtered = trades_df if not bot_filter else trades_df[trades_df['bot_name'].isin(bot_filter)]
             cols = ['timestamp','bot_name','exchange','symbol','side','price','quantity','value','fee','order_id']
-            st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), use_container_width=True)
+            st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), width='stretch')  # FIXED 2026
             st.download_button("Export CSV", filtered.to_csv(index=False), "trades.csv", key="export_trades")
         else:
             st.info("No trades logged yet.")
@@ -1861,7 +1861,7 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             merged = pd.merge(latest, live_metrics, on='bot_name', how='outer')
             dcols = ['bot_name','net_profit','live_net_profit','sharpe_ratio','live_sharpe','max_drawdown_pct','live_max_drawdown','win_rate','live_win_rate']
             ren = merged[dcols].rename(columns={'net_profit':'Backtest Net P&L','live_net_profit':'Live Net P&L','sharpe_ratio':'Backtest Sharpe','live_sharpe':'Live Sharpe','max_drawdown_pct':'Backtest Max DD %','live_max_drawdown':'Live Max DD %','win_rate':'Backtest Win Rate %','live_win_rate':'Live Win Rate %'})
-            st.dataframe(ren.style.format({'Backtest Net P&L':'${:.2f}','Live Net P&L':'${:.2f}','Backtest Sharpe':'{:.2f}','Live Sharpe':'{:.2f}','Backtest Max DD %':'{:.2f}%','Live Max DD %':'{:.2f}%','Backtest Win Rate %':'{:.2f}%','Live Win Rate %':'{:.2f}%'}).map(lambda v: 'color:green' if isinstance(v,(int,float)) and v>0 else 'color:red' if isinstance(v,(int,float)) and v<0 else '', subset=['Live Net P&L']), use_container_width=True)
+            st.dataframe(ren.style.format({'Backtest Net P&L':'${:.2f}','Live Net P&L':'${:.2f}','Backtest Sharpe':'{:.2f}','Live Sharpe':'{:.2f}','Backtest Max DD %':'{:.2f}%','Live Max DD %':'{:.2f}%','Backtest Win Rate %':'{:.2f}%','Live Win Rate %':'{:.2f}%'}).map(lambda v: 'color:green' if isinstance(v,(int,float)) and v>0 else 'color:red' if isinstance(v,(int,float)) and v<0 else '', subset=['Live Net P&L']), width='stretch')  # FIXED 2026
 
     # === TAB 9: BOT P&L COMPARISON ===
     with tab9:
@@ -1874,12 +1874,12 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             df = df.sort_values(['bot_name','timestamp'])
             df['cum_pnl'] = df.groupby('bot_name')['net_cash'].cumsum()
             fig_pnl_comp = px.line(df, x='timestamp', y='cum_pnl', color='bot_name', title="Per-Bot Cumulative Cash Flow", labels={'cum_pnl':'Cash Flow (USD)'})
-            st.plotly_chart(style_plotly_fig(fig_pnl_comp), use_container_width=True)
+            st.plotly_chart(style_plotly_fig(fig_pnl_comp), width='stretch')  # FIXED 2026
             bots = df['bot_name'].unique().tolist()
             sel = st.multiselect("Filter bots", bots, default=bots, key="bot_line_filter")
             if sel:
                 fig_pnl_filtered = px.line(df[df['bot_name'].isin(sel)], x='timestamp', y='cum_pnl', color='bot_name', title="Filtered")
-                st.plotly_chart(style_plotly_fig(fig_pnl_filtered), use_container_width=True)
+                st.plotly_chart(style_plotly_fig(fig_pnl_filtered), width='stretch')  # FIXED 2026
         else:
             st.info("No trade data yet.")
 
@@ -1898,10 +1898,10 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
             if debug_df.empty:
                 st.info("No matched BUY→SELL trades yet.")
             else:
-                st.dataframe(debug_df, use_container_width=True)
+                st.dataframe(debug_df, width='stretch')  # FIXED 2026
                 debug_df['cum_pnl'] = debug_df['pnl'].cumsum()
                 fig_fifo_debug = px.line(debug_df, x='sell_time', y='cum_pnl', title="Cumulative FIFO P&L")
-                st.plotly_chart(style_plotly_fig(fig_fifo_debug), use_container_width=True)
+                st.plotly_chart(style_plotly_fig(fig_fifo_debug), width='stretch')  # FIXED 2026
 
 if __name__ == "__main__":
     main()
