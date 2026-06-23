@@ -272,6 +272,263 @@ st.markdown("""
         border-color: #1E293B !important;
     }
 
+    /* ----- Comprehensive AgGrid Dark Theme Override ----- */
+    .ag-theme-alpine {
+        --ag-background-color: #0B0E14 !important;
+        --ag-foreground-color: #E2E8F0 !important;
+        --ag-header-background-color: #151A24 !important;
+        --ag-header-foreground-color: #38BDF8 !important;
+        --ag-odd-row-background-color: #0B0E14 !important;
+        --ag-row-hover-color: #1E293B !important;
+        --ag-selected-row-background-color: #38BDF820 !important;
+        --ag-range-selection-background-color: #38BDF830 !important;
+        --ag-range-selection-border-color: #38BDF8 !important;
+        --ag-header-column-resize-active-color: #38BDF8 !important;
+        --ag-border-color: #1E293B !important;
+        --ag-row-border-color: #1E293B !important;
+        --ag-header-column-separator-color: #1E293B !important;
+        --ag-header-column-separator-display: block !important;
+        --ag-header-column-separator-width: 1px !important;
+    }
+
+    /* ----- AgGrid Specific Element Styling ----- */
+    .ag-theme-alpine .ag-header,
+    .ag-theme-alpine .ag-header-viewport,
+    .ag-theme-alpine .ag-header-container {
+        background-color: #151A24 !important;
+    }
+
+    .ag-theme-alpine .ag-body,
+    .ag-theme-alpine .ag-body-viewport,
+    .ag-theme-alpine .ag-body-container {
+        background-color: #0B0E14 !important;
+    }
+
+    .ag-theme-alpine .ag-row-even {
+        background-color: #0B0E14 !important;
+    }
+
+    .ag-theme-alpine .ag-row-odd {
+        background-color: #151A24 !important;
+    }
+
+    .ag-theme-alpine .ag-cell {
+        color: #E2E8F0 !important;
+        background-color: transparent !important;
+    }
+
+    .ag-theme-alpine .ag-cell-inline-editing {
+        background-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-cell-focus {
+        border-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-cell-value {
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-header-cell-text {
+        color: #38BDF8 !important;
+        font-weight: 600 !important;
+    }
+
+    .ag-theme-alpine .ag-header-cell-resize {
+        background-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-header-icon {
+        color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-paging-panel {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-paging-button {
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-paging-disabled {
+        color: #94A3B8 !important;
+    }
+
+    .ag-theme-alpine .ag-paging-row-summary-panel {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-tooltip {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-menu {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-menu-option {
+        color: #E2E8F0 !important;
+        background-color: transparent !important;
+    }
+
+    .ag-theme-alpine .ag-menu-option:hover {
+        background-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-menu-option-text {
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-filter-toolbar {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-input-field {
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+        border-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-input-field-input {
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-select {
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+        border-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-picker-field {
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+        border-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-checkbox-input-wrapper {
+        background-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-checkbox-input {
+        background-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-checkbox-checked {
+        background-color: #38BDF8 !important;
+        border-color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-checkbox-unchecked {
+        background-color: #1E293B !important;
+        border-color: #94A3B8 !important;
+    }
+
+    .ag-theme-alpine .ag-icon {
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-icon:hover {
+        color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-tab {
+        background-color: #151A24 !important;
+        border-color: #1E293B !important;
+        color: #E2E8F0 !important;
+    }
+
+    .ag-theme-alpine .ag-tab-active {
+        background-color: #1E293B !important;
+        border-bottom-color: #38BDF8 !important;
+        color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-tab-selected {
+        background-color: #1E293B !important;
+        border-bottom-color: #38BDF8 !important;
+        color: #38BDF8 !important;
+    }
+
+    /* ----- AgGrid Scrollbar Styling ----- */
+    .ag-theme-alpine ::-webkit-scrollbar {
+        width: 8px !important;
+        height: 8px !important;
+    }
+
+    .ag-theme-alpine ::-webkit-scrollbar-track {
+        background: #0B0E14 !important;
+    }
+
+    .ag-theme-alpine ::-webkit-scrollbar-thumb {
+        background: #1E293B !important;
+        border-radius: 4px !important;
+    }
+
+    .ag-theme-alpine ::-webkit-scrollbar-thumb:hover {
+        background: #38BDF8 !important;
+    }
+
+    /* ----- AgGrid Force Dark Theme ----- */
+    .ag-theme-alpine {
+        filter: none !important;
+        -webkit-filter: none !important;
+    }
+
+    /* ----- AgGrid Container Styling ----- */
+    .ag-theme-alpine {
+        border: 1px solid #1E293B !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+
+    /* ----- AgGrid Header Override ----- */
+    .ag-theme-alpine .ag-header-row {
+        border-bottom: 1px solid #1E293B !important;
+    }
+
+    /* ----- AgGrid Cell Content ----- */
+    .ag-theme-alpine .ag-cell-content {
+        color: #E2E8F0 !important;
+    }
+
+    /* ----- AgGrid Loading Overlay ----- */
+    .ag-theme-alpine .ag-overlay-loading-center {
+        background-color: rgba(15, 19, 28, 0.9) !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #38BDF8 !important;
+    }
+
+    /* ----- AgGrid No Rows Overlay ----- */
+    .ag-theme-alpine .ag-overlay-no-rows-center {
+        background-color: rgba(15, 19, 28, 0.9) !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E293B !important;
+    }
+
+    /* ----- AgGrid Force Important Overrides ----- */
+    .ag-theme-alpine, .ag-theme-alpine * {
+        background-color: #0B0E14 !important;
+        color: #E2E8F0 !important;
+        border-color: #1E293B !important;
+    }
+
+    .ag-theme-alpine .ag-header-cell, .ag-theme-alpine .ag-header-group-cell {
+        background-color: #151A24 !important;
+        color: #38BDF8 !important;
+    }
+
+    .ag-theme-alpine .ag-input-field, .ag-theme-alpine .ag-select, .ag-theme-alpine .ag-picker-field {
+        background-color: #1E293B !important;
+        color: #E2E8F0 !important;
+    }
+
     /* ----- Streamlit Container Styling ----- */
     .stContainer {
         background-color: transparent !important;
