@@ -1912,6 +1912,19 @@ def main():
                     st.write(filtered.columns.tolist())
                     st.dataframe(filtered, width='stretch')
                 else:
+                    st.write("DEBUG STEP 5b: dtypes of selected columns")
+                    st.write(filtered[cols].dtypes.astype(str).to_dict())
+                    st.write("DEBUG STEP 5c: first row as dict")
+                    st.write(filtered[cols].iloc[0].to_dict() if len(filtered) > 0 else "no rows")
+                    st.write("DEBUG STEP 5d: testing st.write on raw dataframe (not st.dataframe)")
+                    st.write(filtered[cols].head(3))
+                    st.write("DEBUG STEP 5e: st.write completed, now testing each column individually with st.dataframe")
+                    for c in cols:
+                        try:
+                            st.dataframe(filtered[[c]].head(3), width='stretch', key=f"colcheck_{c}")
+                            st.write(f"  -> column '{c}' OK")
+                        except Exception as col_e:
+                            st.write(f"  -> column '{c}' FAILED: {col_e}")
                     st.write("DEBUG STEP 6: about to render plain st.dataframe (no styling) as a sanity check")
                     st.dataframe(filtered[cols], width='stretch')
                     st.write("DEBUG STEP 7: plain dataframe rendered, now trying styled version")
