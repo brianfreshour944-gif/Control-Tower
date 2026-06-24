@@ -1892,44 +1892,19 @@ def main():
     # === TAB 7: TRADE HISTORY ===
     with tab7:
         st.subheader("Filtered Trade History")
-        st.write("DEBUG STEP 0: entered tab7 block")
-        st.write(f"DEBUG: trades_df type = {type(trades_df)}, shape = {getattr(trades_df, 'shape', 'N/A')}")
-        st.write(f"DEBUG: trades_df.empty = {trades_df.empty}")
         if not trades_df.empty:
-            st.write("DEBUG STEP 1: trades_df is not empty, entering try block")
             try:
-                st.write("DEBUG STEP 2: about to render multiselect")
                 bot_filter = st.multiselect("Filter by Bot", trades_df['bot_name'].unique().tolist(), key="history_filter")
-                st.write(f"DEBUG STEP 3: multiselect rendered, bot_filter = {bot_filter}")
                 filtered = trades_df if not bot_filter else trades_df[trades_df['bot_name'].isin(bot_filter)]
-                st.write(f"DEBUG STEP 4: filtered shape = {filtered.shape}")
                 cols = ['timestamp','bot_name','exchange','symbol','side','price','quantity','value','fee','order_id']
                 missing = [c for c in cols if c not in filtered.columns]
-                st.write(f"DEBUG STEP 5: missing columns = {missing}")
                 if missing:
                     st.error(f"trades table is missing expected columns: {missing}")
                     st.caption("Columns actually present:")
                     st.write(filtered.columns.tolist())
                     st.dataframe(filtered, width='stretch')
                 else:
-                    st.write("DEBUG STEP 5b: dtypes of selected columns")
-                    st.write(filtered[cols].dtypes.astype(str).to_dict())
-                    st.write("DEBUG STEP 5c: first row as dict")
-                    st.write(filtered[cols].iloc[0].to_dict() if len(filtered) > 0 else "no rows")
-                    st.write("DEBUG STEP 5d: testing st.write on raw dataframe (not st.dataframe)")
-                    st.write(filtered[cols].head(3))
-                    st.write("DEBUG STEP 5e: st.write completed, now testing each column individually with st.dataframe")
-                    for c in cols:
-                        try:
-                            st.dataframe(filtered[[c]].head(3), width='stretch', key=f"colcheck_{c}")
-                            st.write(f"  -> column '{c}' OK")
-                        except Exception as col_e:
-                            st.write(f"  -> column '{c}' FAILED: {col_e}")
-                    st.write("DEBUG STEP 6: about to render plain st.dataframe (no styling) as a sanity check")
-                    st.dataframe(filtered[cols], width='stretch')
-                    st.write("DEBUG STEP 7: plain dataframe rendered, now trying styled version")
                     st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), width='stretch')
-                    st.write("DEBUG STEP 8: styled dataframe rendered successfully")
                     st.download_button("Export CSV", filtered.to_csv(index=False), "trades.csv", key="export_trades")
             except Exception as e:
                 import traceback
@@ -1938,7 +1913,6 @@ def main():
                 st.dataframe(trades_df, width='stretch')
         else:
             st.info("No trades logged yet.")
-
 
     # === TAB 8: BACKTEST VS LIVE ===
     with tab8:
