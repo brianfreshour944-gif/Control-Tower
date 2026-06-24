@@ -118,6 +118,12 @@ def get_open_orders_from_db():
     migrate_bot_orders()
     return pd.read_sql("SELECT * FROM bot_orders WHERE status = 'OPEN'", get_db_engine())
 
+@st.cache_data(ttl=10, show_spinner=False)
+def get_all_orders_debug():
+    ensure_table_exists("bot_orders")
+    migrate_bot_orders()
+    return pd.read_sql("SELECT * FROM bot_orders", get_db_engine())
+
 @st.cache_data(ttl=15, show_spinner=False)
 def get_unified_portfolio():
     from alpaca.trading.client import TradingClient
