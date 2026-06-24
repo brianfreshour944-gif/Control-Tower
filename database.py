@@ -92,6 +92,11 @@ def load_trades(limit=5000):
     migrate_trades()
     ensure_table_exists("backtest_results")
     df = pd.read_sql(f"SELECT * FROM trades ORDER BY timestamp DESC LIMIT {limit}", get_db_engine())
+    # Postgres NUMERIC columns come back as Decimal, which breaks pandas .style.format()
+    # and silently fails Streamlit's dataframe rendering. Force them to float.
+    for col in ['price', 'quantity', 'value', 'fee', 'fee_paid', 'realized_pnl', 'pnl_pct']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype(float)
     df['fee'] = df['fee'].fillna(0.0) if 'fee' in df.columns else 0.0
     df['side'] = df['side'].str.upper()
     return df
