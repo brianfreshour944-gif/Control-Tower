@@ -1892,22 +1892,36 @@ def main():
     # === TAB 7: TRADE HISTORY ===
     with tab7:
         st.subheader("Filtered Trade History")
+        st.write("DEBUG STEP 0: entered tab7 block")
+        st.write(f"DEBUG: trades_df type = {type(trades_df)}, shape = {getattr(trades_df, 'shape', 'N/A')}")
+        st.write(f"DEBUG: trades_df.empty = {trades_df.empty}")
         if not trades_df.empty:
+            st.write("DEBUG STEP 1: trades_df is not empty, entering try block")
             try:
+                st.write("DEBUG STEP 2: about to render multiselect")
                 bot_filter = st.multiselect("Filter by Bot", trades_df['bot_name'].unique().tolist(), key="history_filter")
+                st.write(f"DEBUG STEP 3: multiselect rendered, bot_filter = {bot_filter}")
                 filtered = trades_df if not bot_filter else trades_df[trades_df['bot_name'].isin(bot_filter)]
+                st.write(f"DEBUG STEP 4: filtered shape = {filtered.shape}")
                 cols = ['timestamp','bot_name','exchange','symbol','side','price','quantity','value','fee','order_id']
                 missing = [c for c in cols if c not in filtered.columns]
+                st.write(f"DEBUG STEP 5: missing columns = {missing}")
                 if missing:
                     st.error(f"trades table is missing expected columns: {missing}")
                     st.caption("Columns actually present:")
                     st.write(filtered.columns.tolist())
                     st.dataframe(filtered, width='stretch')
                 else:
+                    st.write("DEBUG STEP 6: about to render plain st.dataframe (no styling) as a sanity check")
+                    st.dataframe(filtered[cols], width='stretch')
+                    st.write("DEBUG STEP 7: plain dataframe rendered, now trying styled version")
                     st.dataframe(filtered[cols].style.format({'price':'{:.6f}','quantity':'{:.4f}','value':'${:.2f}','fee':'${:.4f}'}), width='stretch')
+                    st.write("DEBUG STEP 8: styled dataframe rendered successfully")
                     st.download_button("Export CSV", filtered.to_csv(index=False), "trades.csv", key="export_trades")
             except Exception as e:
+                import traceback
                 st.error(f"Could not render trade history: {e}")
+                st.code(traceback.format_exc())
                 st.dataframe(trades_df, width='stretch')
         else:
             st.info("No trades logged yet.")
