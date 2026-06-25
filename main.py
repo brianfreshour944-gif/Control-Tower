@@ -742,12 +742,6 @@ st.markdown("""
     }
 
     /* ----- Streamlit Expander Content Elements ----- */
-    .streamlit-expanderContent * {
-        background-color: #0B0E14 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
-    }
-
     /* ----- Streamlit Expander Content Tables ----- */
     .streamlit-expanderContent table {
         background-color: #151A24 !important;
@@ -866,18 +860,6 @@ st.markdown("""
         background-color: #151A24 !important;
         color: #E2E8F0 !important;
         border: 1px solid #1E293B !important;
-    }
-
-    /* ----- Per-Bot Performance Force Dark Theme ----- */
-    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
-    .streamlit-expanderHeader[aria-label*="bot"] *,
-    .streamlit-expanderHeader[aria-label*="Bot"] *,
-    .streamlit-expanderContent[aria-label*="Per-Bot"] *,
-    .streamlit-expanderContent[aria-label*="bot"] *,
-    .streamlit-expanderContent[aria-label*="Bot"] * {
-        background-color: #151A24 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
     }
 
     /* ----- Per-Bot Performance Inline Style Overrides ----- */
@@ -1007,19 +989,6 @@ st.markdown("""
         margin: 0 0 1rem 0 !important;
     }
 
-    /* ----- Per-Bot Performance Ultimate Force Override ----- */
-    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
-    .streamlit-expanderHeader[aria-label*="bot"] *,
-    .streamlit-expanderHeader[aria-label*="Bot"] *,
-    .streamlit-expanderContent[aria-label*="Per-Bot"] *,
-    .streamlit-expanderContent[aria-label*="bot"] *,
-    .streamlit-expanderContent[aria-label*="Bot"] * {
-        background-color: #151A24 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
-        font-weight: normal !important;
-    }
-
     /* ----- Per-Bot Performance Inline Style Ultimate Override ----- */
     .streamlit-expanderHeader[aria-label*="Per-Bot"] [style],
     .streamlit-expanderHeader[aria-label*="bot"] [style],
@@ -1107,19 +1076,6 @@ st.markdown("""
         border: 1px solid #38BDF8 !important;
         position: relative !important;
         z-index: 1000 !important;
-    }
-
-    /* ----- Per-Bot Performance Nuclear Option ----- */
-    .streamlit-expanderHeader[aria-label*="Per-Bot"] *,
-    .streamlit-expanderHeader[aria-label*="bot"] *,
-    .streamlit-expanderHeader[aria-label*="Bot"] * {
-        all: unset !important;
-        background-color: #151A24 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        font-size: 1rem !important;
-        line-height: 1.5 !important;
     }
 
     /* ----- Streamlit Column Styling ----- */
@@ -1242,13 +1198,6 @@ st.markdown("""
     [data-testid="stDataFrame"] .dataframe-selected {
         background-color: #38BDF820 !important;
         border: 1px solid #38BDF8 !important;
-    }
-
-    /* ----- Streamlit Dataframe Force Dark Theme ----- */
-    [data-testid="stDataFrame"] * {
-        background-color: #151A24 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
     }
 
     /* ----- Streamlit Dataframe Specific Element Overrides ----- */
