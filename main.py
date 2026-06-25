@@ -1201,18 +1201,13 @@ st.markdown("""
     }
 
     /* ----- Streamlit Dataframe Specific Element Overrides ----- */
-    [data-testid="stDataFrame"] div,
-    [data-testid="stDataFrame"] span,
-    [data-testid="stDataFrame"] p,
-    [data-testid="stDataFrame"] a,
-    [data-testid="stDataFrame"] button,
-    [data-testid="stDataFrame"] input,
-    [data-testid="stDataFrame"] select,
-    [data-testid="stDataFrame"] textarea {
-        background-color: #151A24 !important;
-        color: #E2E8F0 !important;
-        border-color: #1E293B !important;
-    }
+    /* NOTE: A rule here previously forced background-color/color/border-color
+       with !important on every div/span/p/button/etc. inside [data-testid="stDataFrame"].
+       This broke Streamlit's dataframe grid (glide-data-grid), which renders cells on
+       an HTML canvas sized via internal measurement <div> elements. Forcing styles onto
+       those divs interfered with the grid's own sizing/rendering, causing columns and
+       cell text to disappear or render blank. Removed — do not re-add a broad
+       div/span/etc selector scoped to stDataFrame. */
 
     /* ----- Streamlit Dataframe Scrollbar ----- */
     [data-testid="stDataFrame"] ::-webkit-scrollbar {
@@ -1940,4 +1935,3 @@ VALUES ('alpaca_hybrid_bot', 'MeanReversion_v1', '2024-01-01', '2024-12-31', 150
 
 if __name__ == "__main__":
     main()
-
