@@ -1,3 +1,4 @@
+
 # strategy.py
 import pandas as pd
 import numpy as np
@@ -121,6 +122,12 @@ def get_daily_pnl_per_bot(df_trades):
     """
     Returns a DataFrame with columns: date, bot_name, daily_pnl
     daily_pnl = sum of net cash flow (SELL +value, BUY -value, minus fees) per bot per day.
+
+    NOTE: this is cash flow, not realized profit -- a BUY and its matching
+    SELL can land on different days, so a single day can show a large
+    "loss" here just from the bot buying inventory it hasn't sold yet.
+    See get_daily_realized_pnl_per_bot() for FIFO-matched realized P&L
+    bucketed by the day each trade actually closed.
     """
     if df_trades.empty:
         return pd.DataFrame(columns=['date', 'bot_name', 'daily_pnl'])
@@ -131,11 +138,78 @@ def get_daily_pnl_per_bot(df_trades):
 
     # Net cash per trade: SELL => +value - fee ; BUY => -value - fee
     df['net_cash'] = df.apply(
-        lambda r: r['value'] - r['fee'] if r['side'].upper() == 'SELL'
-                  else -r['value'] - r['fee'],
+        lambda r: r['value'] - float(r.get('fee', 0) or 0) if str(r['side']).upper() == 'SELL'
+                  else -r['value'] - float(r.get('fee', 0) or 0),
         axis=1
     )
 
     daily = df.groupby(['date', 'bot_name'], as_index=False)['net_cash'].sum()
     daily.columns = ['date', 'bot_name', 'daily_pnl']
     return daily.sort_values(['date', 'bot_name'])
+
+
+def get_daily_realized_pnl_per_bot(df_trades):
+    """
+    Returns a DataFrame with columns: date, bot_name, realized_pnl, closed_trades
+    Uses the same FIFO BUY-matching logic as fifo_stats_all_bots(), but
+    records each match's P&L under the date of the SELL that closed it,
+    instead of only accumulating a lifetime total. This is "did the bot
+    actually make money that day" -- unaffected by inventory still held.
+    """
+    if df_trades.empty:
+        return pd.DataFrame(columns=['date', 'bot_name', 'realized_pnl', 'closed_trades'])
+
+    df = df_trades.copy()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df = df.sort_values(['bot_name', 'timestamp'])
+
+    records = []
+    for bot, group in df.groupby('bot_name'):
+        buy_queue = []
+        for _, row in group.iterrows():
+            qty, price, fee = float(row['quantity']), float(row['price']), float(row.get('fee', 0) or 0)
+            side = str(row['side']).upper()
+            sell_date = row['timestamp'].date()
+            if side == 'BUY':
+                buy_queue.append({'qty': qty, 'price': price, 'fee': fee})
+            elif side == 'SELL':
+                sell_qty = qty
+                while sell_qty > 1e-8 and buy_queue:
+                    buy = buy_queue[0]
+                    mq = min(sell_qty, buy['qty'])
+                    buy_fee = buy['fee'] * (mq / buy['qty']) if buy['qty'] > 0 else 0
+                    sell_fee = fee * (mq / qty) if qty > 0 else 0
+                    pnl = (price - buy['price']) * mq - buy_fee - sell_fee
+                    records.append({'date': sell_date, 'bot_name': bot, 'pnl': pnl})
+                    buy['qty'] -= mq
+                    sell_qty -= mq
+                    if buy['qty'] <= 1e-8: buy_queue.pop(0)
+
+    if not records:
+        return pd.DataFrame(columns=['date', 'bot_name', 'realized_pnl', 'closed_trades'])
+
+    rec_df = pd.DataFrame(records)
+    daily = rec_df.groupby(['date', 'bot_name'], as_index=False).agg(
+        realized_pnl=('pnl', 'sum'),
+        closed_trades=('pnl', 'count'),
+    )
+    return daily.sort_values(['date', 'bot_name'])
+
+
+def aggregate_to_weekly(daily_df, value_cols):
+    """
+    Groups a daily (date, bot_name, ...) DataFrame into ISO weeks.
+    value_cols: list of column names to sum (e.g. ['daily_pnl'] or
+    ['realized_pnl', 'closed_trades']). Adds 'week_start' (Monday of
+    that ISO week) as the grouping key, replacing 'date'.
+    """
+    if daily_df.empty:
+        cols = ['week_start', 'bot_name'] + value_cols
+        return pd.DataFrame(columns=cols)
+
+    df = daily_df.copy()
+    df['date'] = pd.to_datetime(df['date'])
+    df['week_start'] = (df['date'] - pd.to_timedelta(df['date'].dt.weekday, unit='D')).dt.date
+
+    weekly = df.groupby(['week_start', 'bot_name'], as_index=False)[value_cols].sum()
+    return weekly.sort_values(['week_start', 'bot_name'])
