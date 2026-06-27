@@ -1,3 +1,4 @@
+
 # main.py
 import streamlit as st
 from datetime import datetime
@@ -18,6 +19,7 @@ from tabs import (
     trade_history,
     backtest,
     fifo_debugger,
+    daily_pnl,
 )
 
 # Page config
@@ -124,7 +126,15 @@ def render_top_metrics(data):
     total_pnl = realized_pnl + unrealized_pnl
     daily_cash_flow = strat.get_daily_realized_pnl(trades_df)
     active_bots = len(status_df[status_df['status'] == 'RUNNING']) if not status_df.empty else 0
-    portfolio_val = df_pos['market_value'].sum() if not df_pos.empty else 0
+
+    # Split portfolio value into real vs. demo/sandbox money so a large
+    # OKX sandbox balance never gets mistaken for real capital.
+    if not df_pos.empty and 'is_demo' in df_pos.columns:
+        live_val = df_pos.loc[~df_pos['is_demo'].astype(bool), 'market_value'].sum()
+        demo_val = df_pos.loc[df_pos['is_demo'].astype(bool), 'market_value'].sum()
+    else:
+        live_val = df_pos['market_value'].sum() if not df_pos.empty else 0
+        demo_val = 0
 
     c1, c2, c3, c4, c5, c6 = st.columns(6)
     with c1: st.markdown(metric_box("Total Trades", white_val(len(trades_df), "{:,.0f}")), unsafe_allow_html=True)
@@ -132,7 +142,10 @@ def render_top_metrics(data):
     with c3: st.markdown(metric_box("Unrealized P&L", colored_pnl(unrealized_pnl)), unsafe_allow_html=True)
     with c4: st.markdown(metric_box("Total P&L", colored_pnl(total_pnl)), unsafe_allow_html=True)
     with c5: st.markdown(metric_box("Active Bots", white_val(active_bots, "{:,.0f}")), unsafe_allow_html=True)
-    with c6: st.markdown(metric_box("Portfolio Value", white_val(portfolio_val)), unsafe_allow_html=True)
+    with c6: st.markdown(metric_box("Portfolio Value (Live)", white_val(live_val)), unsafe_allow_html=True)
+
+    if demo_val > 0:
+        st.caption(f"🧪 Demo/sandbox portfolio value (not real money, excluded above): ${demo_val:,.2f}")
 
     flow_class = "profit" if daily_cash_flow >= 0 else "loss"
     sign = "+" if daily_cash_flow >= 0 else ""
@@ -158,9 +171,9 @@ def render_tabs(data, fifo):
     backtest_df = data["backtest_df"]
     db_orders = data["db_orders"]
 
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
         "🤖 Bot Control", "💰 Portfolio", "📋 Open Orders", "📈 Performance",
-        "🚨 Error Log", "🎯 Per-Bot Stats", "📜 Trade History",
+        "🚨 Error Log", "🎯 Per-Bot Stats", "🗓️ Daily/Weekly P&L", "📜 Trade History",
         "📊 Backtest vs Live", "📈 Bot P&L Comparison", "🧪 FIFO Debugger"
     ])
 
@@ -177,12 +190,14 @@ def render_tabs(data, fifo):
     with tab6:
         per_bot_stats.render(fifo)
     with tab7:
-        trade_history.render(trades_df)
+        daily_pnl.render(trades_df)
     with tab8:
-        backtest.render(trades_df, backtest_df)
+        trade_history.render(trades_df)
     with tab9:
-        performance.render_bot_pnl_comparison(trades_df)
+        backtest.render(trades_df, backtest_df)
     with tab10:
+        performance.render_bot_pnl_comparison(trades_df)
+    with tab11:
         fifo_debugger.render(trades_df)
 
 
