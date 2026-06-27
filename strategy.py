@@ -1,4 +1,3 @@
-
 # strategy.py
 import pandas as pd
 import numpy as np
@@ -8,9 +7,14 @@ def fifo_stats_all_bots(df_trades):
     if df_trades.empty: return {}
     df = df_trades.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.sort_values(['bot_name', 'timestamp'])
+    df = df.sort_values(['bot_name', 'symbol', 'timestamp'])
     result = {}
-    for bot, group in df.groupby('bot_name'):
+    # FIX: group by (bot_name, symbol), not just bot_name -- a bot trading
+    # multiple symbols (e.g. BTC/USD and ETH/USD) would otherwise have its
+    # BUY/SELL queues mixed across symbols, matching e.g. a BTC buy against
+    # an ETH sell and producing nonsensical P&L (seen as huge spurious
+    # gains/losses in the FIFO Debugger tab).
+    for (bot, symbol), group in df.groupby(['bot_name', 'symbol']):
         buy_queue = []
         realized_pnl = 0.0
         wins = losses = total_closed = 0
@@ -33,13 +37,24 @@ def fifo_stats_all_bots(df_trades):
                     buy['qty'] -= mq
                     sell_qty -= mq
                     if buy['qty'] <= 1e-8: buy_queue.pop(0)
-        result[bot] = {
-            'bot_name': bot, 'realized_pnl': round(realized_pnl, 2),
-            'wins': wins, 'losses': losses, 'total_closed': total_closed,
-            'win_rate': round((wins / total_closed * 100) if total_closed > 0 else 0, 2),
-            'orphaned_qty': round(sum(b['qty'] for b in buy_queue), 6),
-            'orphaned_cost_basis': round(sum(b['qty'] * b['price'] for b in buy_queue), 2),
-        }
+        # Merge results across symbols for the same bot, since the
+        # dashboard's per-bot views key off bot_name alone.
+        if bot not in result:
+            result[bot] = {
+                'bot_name': bot, 'realized_pnl': 0.0,
+                'wins': 0, 'losses': 0, 'total_closed': 0,
+                'orphaned_qty': 0.0, 'orphaned_cost_basis': 0.0,
+            }
+        result[bot]['realized_pnl'] = round(result[bot]['realized_pnl'] + realized_pnl, 2)
+        result[bot]['wins'] += wins
+        result[bot]['losses'] += losses
+        result[bot]['total_closed'] += total_closed
+        result[bot]['orphaned_qty'] = round(result[bot]['orphaned_qty'] + sum(b['qty'] for b in buy_queue), 6)
+        result[bot]['orphaned_cost_basis'] = round(result[bot]['orphaned_cost_basis'] + sum(b['qty'] * b['price'] for b in buy_queue), 2)
+
+    for bot in result:
+        tc = result[bot]['total_closed']
+        result[bot]['win_rate'] = round((result[bot]['wins'] / tc * 100) if tc > 0 else 0, 2)
     return result
 
 def compute_performance_metrics(df_trades):
@@ -97,26 +112,42 @@ def get_live_bot_metrics(df_trades):
     return pd.DataFrame(out)
 
 def get_fifo_debug(bot_name, df_trades):
-    bot_df = df_trades[df_trades['bot_name'] == bot_name].sort_values('timestamp')
+    """
+    Returns (matched_trades_df, total_orphaned_qty) for the given bot.
+    matched_trades_df includes a 'symbol' column. Matching is done
+    separately per symbol -- a BUY in one symbol is never matched against
+    a SELL in a different symbol, even for bots that trade more than one
+    (e.g. a bot trading both BTC/USD and ETH/USD).
+    total_orphaned_qty sums orphaned quantity across all symbols; see the
+    per-row 'symbol' column if you need it broken out.
+    """
+    bot_df = df_trades[df_trades['bot_name'] == bot_name].sort_values(['symbol', 'timestamp'])
     if bot_df.empty:
         return pd.DataFrame(), 0.0
-    buy_queue = []; matched = []
-    for _, row in bot_df.iterrows():
-        qty = float(row['quantity']); price = float(row['price'])
-        fee = float(row.get('fee', 0) or 0); side = str(row['side']).upper(); ts = row['timestamp']
-        if side == 'BUY':
-            buy_queue.append({'qty': qty, 'price': price, 'fee': fee, 'time': ts})
-        elif side == 'SELL':
-            sq = qty
-            while sq > 1e-8 and buy_queue:
-                b = buy_queue[0]; mq = min(sq, b['qty'])
-                pnl = (price - b['price']) * mq
-                matched.append({'buy_time': b['time'], 'sell_time': ts,
-                                'buy_price': b['price'], 'sell_price': price,
-                                'quantity': mq, 'pnl': round(pnl, 4)})
-                b['qty'] -= mq; sq -= mq
-                if b['qty'] <= 1e-8: buy_queue.pop(0)
-    return pd.DataFrame(matched), sum(b['qty'] for b in buy_queue)
+    matched = []
+    total_orphaned = 0.0
+    for symbol, sym_df in bot_df.groupby('symbol'):
+        buy_queue = []
+        for _, row in sym_df.iterrows():
+            qty = float(row['quantity']); price = float(row['price'])
+            fee = float(row.get('fee', 0) or 0); side = str(row['side']).upper(); ts = row['timestamp']
+            if side == 'BUY':
+                buy_queue.append({'qty': qty, 'price': price, 'fee': fee, 'time': ts})
+            elif side == 'SELL':
+                sq = qty
+                while sq > 1e-8 and buy_queue:
+                    b = buy_queue[0]; mq = min(sq, b['qty'])
+                    pnl = (price - b['price']) * mq
+                    matched.append({'symbol': symbol, 'buy_time': b['time'], 'sell_time': ts,
+                                    'buy_price': b['price'], 'sell_price': price,
+                                    'quantity': mq, 'pnl': round(pnl, 4)})
+                    b['qty'] -= mq; sq -= mq
+                    if b['qty'] <= 1e-8: buy_queue.pop(0)
+        total_orphaned += sum(b['qty'] for b in buy_queue)
+    matched_df = pd.DataFrame(matched)
+    if not matched_df.empty:
+        matched_df = matched_df.sort_values('sell_time').reset_index(drop=True)
+    return matched_df, total_orphaned
 
 def get_daily_pnl_per_bot(df_trades):
     """
@@ -161,10 +192,12 @@ def get_daily_realized_pnl_per_bot(df_trades):
 
     df = df_trades.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.sort_values(['bot_name', 'timestamp'])
+    df = df.sort_values(['bot_name', 'symbol', 'timestamp'])
 
     records = []
-    for bot, group in df.groupby('bot_name'):
+    # FIX: match per (bot_name, symbol), not just bot_name -- see the same
+    # fix and rationale in fifo_stats_all_bots().
+    for (bot, symbol), group in df.groupby(['bot_name', 'symbol']):
         buy_queue = []
         for _, row in group.iterrows():
             qty, price, fee = float(row['quantity']), float(row['price']), float(row.get('fee', 0) or 0)
