@@ -1,3 +1,4 @@
+
 """
 FILE: database.py
 Handles all SQL connection, table creation, and data retrieval.
@@ -138,6 +139,7 @@ def get_unified_portfolio():
     API_SECRET = os.getenv("APCA_API_SECRET_KEY")
     PAPER = os.getenv("APCA_API_PAPER", "true").lower() == "true"
     trading_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=PAPER)
+    OKX_SANDBOX = os.getenv("OKX_SANDBOX", "true").lower() == "true"
     okx = ccxt.okx({
         'apiKey': os.getenv('OKX_API_KEY'),
         'secret': os.getenv('OKX_API_SECRET'),
@@ -146,7 +148,7 @@ def get_unified_portfolio():
         'enableRateLimit': True,
         'options': {'defaultType': 'spot'}
     })
-    okx.set_sandbox_mode(True)
+    okx.set_sandbox_mode(OKX_SANDBOX)
 
     positions = []
     try:
@@ -154,7 +156,8 @@ def get_unified_portfolio():
             qty = float(p.qty); avg = float(p.avg_entry_price); cur = float(p.current_price)
             positions.append({"source": "Alpaca", "symbol": p.symbol, "quantity": qty,
                               "avg_entry": avg, "current_price": cur,
-                              "market_value": qty * cur, "unrealized_pl": (cur - avg) * qty})
+                              "market_value": qty * cur, "unrealized_pl": (cur - avg) * qty,
+                              "is_demo": PAPER})
     except Exception as e:
         st.sidebar.error(f"Alpaca positions: {e}")
     try:
@@ -167,7 +170,8 @@ def get_unified_portfolio():
                     price = tickers[sym]['last']
                     positions.append({"source": "OKX", "symbol": coin, "quantity": float(amount),
                                       "avg_entry": 0.0, "current_price": price,
-                                      "market_value": float(amount) * price, "unrealized_pl": 0.0})
+                                      "market_value": float(amount) * price, "unrealized_pl": 0.0,
+                                      "is_demo": OKX_SANDBOX})
     except Exception as e:
         st.sidebar.error(f"OKX balance: {e}")
     return pd.DataFrame(positions)
