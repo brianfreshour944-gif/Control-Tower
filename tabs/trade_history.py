@@ -1,3 +1,4 @@
+
 """Tab: Trade History -- filterable, exportable trade log."""
 
 import streamlit as st
