@@ -1,3 +1,4 @@
+
 """
 ui_helpers.py
 
@@ -51,17 +52,22 @@ def style_plotly_fig(fig):
 
 # ---------- Data Sanitizer (fixed for ID columns) ----------
 
-def sanitize_df(df):
+def sanitize_df(df, preserve_null_columns=None):
     """
     Normalize a DataFrame loaded from the DB before display:
     - Force ID-like columns to plain strings
     - Coerce other object columns to numeric where possible
-    - Fill NaN in numeric columns with 0
+    - Fill NaN in numeric columns with 0 (except columns listed in
+      preserve_null_columns, where NaN/missing has real meaning and
+      should NOT be turned into a misleading 0 -- e.g. starting_equity:
+      "hasn't reported a balance yet" must stay distinguishable from
+      "reported a balance of exactly $0")
     - Parse timestamp/date columns
     """
     if df.empty:
         return df
     df = df.copy()
+    preserve_null_columns = set(preserve_null_columns or [])
 
     # Force ID columns to be plain strings (no fixed length)
     id_columns = ['id', 'order_id', 'bot_name', 'exchange', 'symbol']
@@ -77,9 +83,10 @@ def sanitize_df(df):
             except:
                 pass
 
-    # Fill NaN in numeric columns with 0 and convert to float64
+    # Fill NaN in numeric columns with 0 and convert to float64,
+    # except columns where NaN is meaningful and must be preserved.
     for col in df.columns:
-        if pd.api.types.is_numeric_dtype(df[col]):
+        if pd.api.types.is_numeric_dtype(df[col]) and col not in preserve_null_columns:
             df[col] = df[col].fillna(0).astype('float64')
 
     # Convert timestamp columns
