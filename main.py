@@ -20,6 +20,7 @@ from tabs import (
     backtest,
     fifo_debugger,
     daily_pnl,
+    equity_tracking,
 )
 
 # Page config
@@ -104,7 +105,7 @@ def load_data():
 
     return {
         "trades_df": sanitize_df(trades_df),
-        "status_df": sanitize_df(status_df),
+        "status_df": sanitize_df(status_df, preserve_null_columns=['starting_equity', 'live_equity']),
         "error_df": sanitize_df(error_df),
         "df_pos": sanitize_df(df_pos),
         "live_orders": sanitize_df(live_orders),
@@ -171,10 +172,10 @@ def render_tabs(data, fifo):
     backtest_df = data["backtest_df"]
     db_orders = data["db_orders"]
 
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12 = st.tabs([
         "🤖 Bot Control", "💰 Portfolio", "📋 Open Orders", "📈 Performance",
-        "🚨 Error Log", "🎯 Per-Bot Stats", "🗓️ Daily/Weekly P&L", "📜 Trade History",
-        "📊 Backtest vs Live", "📈 Bot P&L Comparison", "🧪 FIFO Debugger"
+        "🚨 Error Log", "🎯 Per-Bot Stats", "💼 Equity Tracking", "🗓️ Daily/Weekly P&L",
+        "📜 Trade History", "📊 Backtest vs Live", "📈 Bot P&L Comparison", "🧪 FIFO Debugger"
     ])
 
     with tab1:
@@ -190,14 +191,16 @@ def render_tabs(data, fifo):
     with tab6:
         per_bot_stats.render(fifo)
     with tab7:
-        daily_pnl.render(trades_df)
+        equity_tracking.render(trades_df, status_df)
     with tab8:
-        trade_history.render(trades_df)
+        daily_pnl.render(trades_df)
     with tab9:
-        backtest.render(trades_df, backtest_df)
+        trade_history.render(trades_df)
     with tab10:
-        performance.render_bot_pnl_comparison(trades_df)
+        backtest.render(trades_df, backtest_df)
     with tab11:
+        performance.render_bot_pnl_comparison(trades_df)
+    with tab12:
         fifo_debugger.render(trades_df)
 
 
