@@ -44,13 +44,20 @@ def fifo_stats_all_bots(df_trades):
                 'bot_name': bot, 'realized_pnl': 0.0,
                 'wins': 0, 'losses': 0, 'total_closed': 0,
                 'orphaned_qty': 0.0, 'orphaned_cost_basis': 0.0,
+                'holdings': {},  # {symbol: {'qty': ..., 'cost_basis': ...}}
             }
         result[bot]['realized_pnl'] = round(result[bot]['realized_pnl'] + realized_pnl, 2)
         result[bot]['wins'] += wins
         result[bot]['losses'] += losses
         result[bot]['total_closed'] += total_closed
-        result[bot]['orphaned_qty'] = round(result[bot]['orphaned_qty'] + sum(b['qty'] for b in buy_queue), 6)
-        result[bot]['orphaned_cost_basis'] = round(result[bot]['orphaned_cost_basis'] + sum(b['qty'] * b['price'] for b in buy_queue), 2)
+        symbol_qty = sum(b['qty'] for b in buy_queue)
+        symbol_cost = sum(b['qty'] * b['price'] for b in buy_queue)
+        if symbol_qty > 1e-8:
+            result[bot]['holdings'][symbol] = {
+                'qty': round(symbol_qty, 6), 'cost_basis': round(symbol_cost, 2)
+            }
+        result[bot]['orphaned_qty'] = round(result[bot]['orphaned_qty'] + symbol_qty, 6)
+        result[bot]['orphaned_cost_basis'] = round(result[bot]['orphaned_cost_basis'] + symbol_cost, 2)
 
     for bot in result:
         tc = result[bot]['total_closed']
@@ -227,6 +234,86 @@ def get_daily_realized_pnl_per_bot(df_trades):
         closed_trades=('pnl', 'count'),
     )
     return daily.sort_values(['date', 'bot_name'])
+
+
+def compute_bot_equity(fifo, status_df, current_prices):
+    """
+    Computes a 'calculated' balance per bot: starting_equity + realized_pnl
+    + current market value of any still-held inventory (valued at
+    current_prices, falling back to cost basis if no live price is
+    available for that symbol). This is meant to be comparable to a bot's
+    real live account equity (cash + position value).
+
+    Args:
+        fifo: dict from fifo_stats_all_bots(trades_df).
+        status_df: DataFrame from db.get_bot_status() -- needs bot_name,
+            starting_equity, live_equity, live_equity_updated_at columns.
+        current_prices: dict of {symbol: price}, e.g. {'BTC/USD': 60000.0}.
+            Symbols not found here fall back to cost basis (no gain/loss
+            assumed on unpriced inventory, rather than guessing).
+
+    Returns a DataFrame with columns: bot_name, starting_equity,
+    realized_pnl, inventory_value, calculated_equity, live_equity,
+    live_equity_updated_at, delta (live - calculated, None if no live
+    equity reported yet).
+    """
+    rows = []
+    status_lookup = {}
+    if status_df is not None and not status_df.empty:
+        for _, r in status_df.iterrows():
+            status_lookup[r['bot_name']] = r
+
+    all_bots = set(fifo.keys()) | set(status_lookup.keys())
+    for bot in sorted(all_bots):
+        f = fifo.get(bot, {'realized_pnl': 0.0, 'holdings': {}})
+        s = status_lookup.get(bot, {})
+
+        def _clean(val):
+            """SQL NULL comes back from pandas as NaN (a float), not None.
+            Normalize both to a real None so downstream checks are simple
+            and correct, instead of accidentally treating NaN as a value."""
+            if val is None:
+                return None
+            try:
+                if pd.isna(val):
+                    return None
+            except (TypeError, ValueError):
+                pass
+            return val
+
+        starting_equity = _clean(s.get('starting_equity') if hasattr(s, 'get') else None)
+        live_equity = _clean(s.get('live_equity') if hasattr(s, 'get') else None)
+        live_updated = _clean(s.get('live_equity_updated_at') if hasattr(s, 'get') else None)
+
+        inventory_value = 0.0
+        for symbol, holding in f.get('holdings', {}).items():
+            price = current_prices.get(symbol)
+            if price is not None:
+                inventory_value += holding['qty'] * price
+            else:
+                # No live price available -- value at cost rather than guess
+                inventory_value += holding['cost_basis']
+
+        realized_pnl = f.get('realized_pnl', 0.0)
+        calculated_equity = None
+        if starting_equity is not None:
+            calculated_equity = round(starting_equity + realized_pnl + inventory_value, 2)
+
+        delta = None
+        if calculated_equity is not None and live_equity is not None:
+            delta = round(live_equity - calculated_equity, 2)
+
+        rows.append({
+            'bot_name': bot,
+            'starting_equity': starting_equity,
+            'realized_pnl': realized_pnl,
+            'inventory_value': round(inventory_value, 2),
+            'calculated_equity': calculated_equity,
+            'live_equity': live_equity,
+            'live_equity_updated_at': live_updated,
+            'delta': delta,
+        })
+    return pd.DataFrame(rows)
 
 
 def aggregate_to_weekly(daily_df, value_cols):
