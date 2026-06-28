@@ -1,3 +1,4 @@
+
 """Tab: Error Log -- raw bot error rows from the bot_errors table."""
 
 import streamlit as st
