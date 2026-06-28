@@ -11,7 +11,6 @@ from datetime import datetime, date
 import ccxt
 
 @st.cache_resource
-@st.cache_resource
 def get_db_engine():
     db_url = os.getenv("DATABASE_URL")
     if db_url:
@@ -64,6 +63,16 @@ def migrate_bot_status():
                 conn.execute(text("ALTER TABLE bot_status ADD COLUMN daily_loss_limit REAL DEFAULT 100"))
             if "config" not in cols:
                 conn.execute(text("ALTER TABLE bot_status ADD COLUMN config TEXT DEFAULT '{}'"))
+            # Equity tracking: starting_equity is set once (first time a bot
+            # reports in) and never overwritten. live_equity is overwritten
+            # on every report. live_equity_updated_at lets the dashboard
+            # flag a bot as stale if it stops reporting (e.g. crashed).
+            if "starting_equity" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN starting_equity REAL"))
+            if "live_equity" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN live_equity REAL"))
+            if "live_equity_updated_at" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN live_equity_updated_at TIMESTAMP"))
             conn.commit()
 
 def migrate_bot_orders():
@@ -131,6 +140,56 @@ def get_all_orders_debug():
     return pd.read_sql("SELECT * FROM bot_orders", get_db_engine())
 
 @st.cache_data(ttl=15, show_spinner=False)
+@st.cache_data(ttl=30, show_spinner=False)
+def get_current_prices(symbols):
+    """
+    Given a list of symbols (e.g. ['BTC/USD', 'ETH/USD', 'SOL/USDT']),
+    returns {symbol: price} for whichever ones could be priced. Crypto
+    symbols are priced via OKX's public ticker endpoint (no API key
+    needed). Alpaca equity/crypto symbols fall back to the Alpaca data
+    client if OKX doesn't recognize them.
+
+    Missing/unpriceable symbols are simply omitted from the result --
+    callers (e.g. compute_bot_equity) should fall back to cost basis
+    for any symbol not present in the returned dict, rather than this
+    function guessing or raising.
+    """
+    prices = {}
+    if not symbols:
+        return prices
+
+    try:
+        okx_public = ccxt.okx({'enableRateLimit': True})
+        tickers = okx_public.fetch_tickers()
+        for sym in symbols:
+            # OKX uses BTC/USDT style; bots may store BTC/USD -- try both
+            candidates = [sym, sym.replace('/USD', '/USDT')]
+            for c in candidates:
+                if c in tickers and tickers[c].get('last'):
+                    prices[sym] = float(tickers[c]['last'])
+                    break
+    except Exception as e:
+        st.sidebar.warning(f"Could not fetch OKX public prices: {e}")
+
+    missing = [s for s in symbols if s not in prices]
+    if missing:
+        try:
+            from alpaca.data.historical import CryptoHistoricalDataClient, StockHistoricalDataClient
+            from alpaca.data.requests import CryptoLatestTradeRequest, StockLatestTradeRequest
+            crypto_client = CryptoHistoricalDataClient()
+            for sym in missing:
+                try:
+                    req = CryptoLatestTradeRequest(symbol_or_symbols=sym)
+                    trade = crypto_client.get_crypto_latest_trade(req)
+                    prices[sym] = float(trade[sym].price)
+                except Exception:
+                    continue
+        except Exception as e:
+            st.sidebar.warning(f"Could not fetch Alpaca fallback prices: {e}")
+
+    return prices
+
+
 def get_unified_portfolio():
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import GetOrdersRequest
