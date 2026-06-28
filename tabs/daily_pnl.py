@@ -1,3 +1,4 @@
+
 """Tab: Daily/Weekly P&L -- per-bot breakdown over time, showing both
 Realized P&L (FIFO-matched profit, the more "honest" number) and Net Cash
 Flow (raw money in/out, which swings when a bot is mid-way through buying
