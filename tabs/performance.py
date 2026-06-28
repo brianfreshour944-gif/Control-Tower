@@ -1,3 +1,4 @@
+
 """Tabs: Performance (aggregate metrics + cumulative cash flow) and
 Bot P&L Comparison (per-bot cumulative cash flow lines).
 
