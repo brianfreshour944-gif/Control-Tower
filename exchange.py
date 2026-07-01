@@ -116,6 +116,33 @@ class OKXExchange:
         except Exception:
             return 0.0
 
+    def get_min_qty(self, symbol: str) -> float:
+        """
+        Return the minimum tradable quantity (minSz) for a given symbol on OKX.
+        Returns 0.0 if the instrument info is not available.
+        """
+        # Ensure instrument data is loaded; load() populates self.client.markets
+        if not hasattr(self, "client") or not hasattr(self.client, "markets"):
+            logger.warning(f"Exchange markets not loaded; defaulting min qty for {symbol} to 0")
+            return 0.0
+
+        market = self.client.market(symbol)
+        if not market:
+            logger.warning(f"Market data missing for {symbol}, defaulting min qty to 0")
+            return 0.0
+
+        # OKX uses 'minSz' for the minimum order size (quantity)
+        min_sz = market.get("info", {}).get("minSz")
+        if min_sz is None:
+            logger.warning(f"No minSz found for {symbol}, defaulting to 0")
+            return 0.0
+
+        try:
+            return float(min_sz)
+        except Exception:
+            logger.warning(f"Unable to parse minSz '{min_sz}' for {symbol}, defaulting to 0")
+            return 0.0
+
     async def market_buy(self, symbol: str, base_qty: float):
         amt = self.amount_to_precision(symbol, base_qty)
         return await self.client.create_order(
