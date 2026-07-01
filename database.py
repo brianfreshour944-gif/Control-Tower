@@ -1,15 +1,146 @@
-
 """
 FILE: database.py
 Handles all SQL connection, table creation, and data retrieval.
 """
+
 import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, text, inspect
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import ccxt
 
+# -------------------------------------------------
+# PostgreSQL helper functions (newly added)
+# -------------------------------------------------
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import logging
+
+DATABASE_URL = os.getenv("DATABASE_URL")  # e.g., postgresql://user:pass@localhost:5432/trading
+
+def get_db_connection():
+    """Returns a PostgreSQL connection using DATABASE_URL."""
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+def init_db():
+    """Creates the archive table if it doesn't exist (PostgreSQL)."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Your existing tables (bot_status, trades) are assumed to already exist.
+    # Adding the new archive table:
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS daily_snapshots (
+            id SERIAL PRIMARY KEY,
+            bot_name TEXT NOT NULL,
+            snapshot_date DATE NOT NULL DEFAULT CURRENT_DATE,
+            starting_equity DECIMAL(18, 8),
+            ending_equity DECIMAL(18, 8),
+            daily_pnl DECIMAL(18, 8),
+            daily_pnl_pct DECIMAL(10, 4),
+            win_rate DECIMAL(10, 4),
+            total_trades INTEGER,
+            wins INTEGER,
+            losses INTEGER,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            CONSTRAINT unique_bot_daily UNIQUE (bot_name, snapshot_date)
+        )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_daily_snapshots_bot_date ON daily_snapshots (bot_name, snapshot_date DESC);")
+    conn.commit()
+    cur.close()
+    conn.close()
+    logging.info("PostgreSQL archive table (daily_snapshots) is ready.")
+
+def archive_and_reset_daily_stats(bot_name: str = "default_bot"):
+    """
+    PostgreSQL version:
+    1. Archives today's stats to daily_snapshots.
+    2. Resets the daily P&L counters without deleting history.
+    """
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # 1. Fetch current live stats (latest row)
+    cur.execute("""
+        SELECT starting_equity, live_equity, daily_pnl_pct
+        FROM bot_status
+        WHERE bot_name = %s
+        ORDER BY timestamp DESC LIMIT 1
+    """, (bot_name,))
+    row = cur.fetchone()
+    
+    if not row:
+        logging.warning(f"No live stats for {bot_name}. Skipping archive.")
+        conn.close()
+        return
+    
+    today_str = datetime.now(timezone.utc).date().isoformat()
+    
+    starting_eq = float(row['starting_equity'] or 0.0)
+    ending_eq = float(row['live_equity'] or 0.0)
+    daily_pnl = ending_eq - starting_eq
+    daily_pnl_pct = float(row['daily_pnl_pct'] or 0.0)
+    
+    # 2. Get today's trade stats (PostgreSQL uses DATE(..) with AT TIME ZONE)
+    cur.execute("""
+        SELECT COUNT(*) AS total,
+               SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) AS wins,
+               SUM(CASE WHEN pnl < 0 THEN 1 ELSE 0 END) AS losses
+        FROM trades
+        WHERE bot_name = %s
+          AND DATE(timestamp AT TIME ZONE 'UTC') = %s
+    """, (bot_name, today_str))
+    stats = cur.fetchone()
+    
+    total_trades = stats['total'] or 0
+    wins = stats['wins'] or 0
+    losses = stats['losses'] or 0
+    win_rate = (wins / total_trades * 100) if total_trades > 0 else 0.0
+    
+    # 3. Insert archive (PostgreSQL ON CONFLICT instead of INSERT OR IGNORE)
+    cur.execute("""
+        INSERT INTO daily_snapshots 
+        (bot_name, snapshot_date, starting_equity, ending_equity, 
+         daily_pnl, daily_pnl_pct, win_rate, total_trades, wins, losses)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (bot_name, snapshot_date) DO NOTHING
+    """, (bot_name, today_str, starting_eq, ending_eq, 
+          daily_pnl, daily_pnl_pct, win_rate, total_trades, wins, losses))
+    
+    # 4. Reset live daily counters (set starting_equity = live_equity)
+    cur.execute("""
+        UPDATE bot_status
+        SET starting_equity = live_equity,
+            daily_pnl_pct = 0
+        WHERE bot_name = %s
+    """, (bot_name,))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    logging.info(f"[{today_str}] Archived & reset {bot_name} | Day P&L: ${daily_pnl:+.2f}")
+
+def get_historical_performance(bot_name: str, days: int = 90):
+    """Fetch archived data for the Streamlit dashboard."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT snapshot_date, daily_pnl, daily_pnl_pct, win_rate, total_trades
+        FROM daily_snapshots
+        WHERE bot_name = %s
+        ORDER BY snapshot_date DESC
+        LIMIT %s
+    """, (bot_name, days))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+# -------------------------------------------------
+# Existing SQLAlchemy helpers (unchanged)
+# -------------------------------------------------
 @st.cache_resource
 def get_db_engine():
     db_url = os.getenv("DATABASE_URL")
@@ -189,7 +320,6 @@ def get_current_prices(symbols):
 
     return prices
 
-
 def get_unified_portfolio():
     from alpaca.trading.client import TradingClient
     from alpaca.trading.requests import GetOrdersRequest
@@ -258,17 +388,17 @@ def get_live_exchange_orders():
     try:
         for o in trading_client.get_orders(filter=GetOrdersRequest(status=QueryOrderStatus.OPEN)):
             orders.append({"exchange": "Alpaca", "id": o.id, "symbol": o.symbol,
-                           "side": o.side.value, "type": o.order_type.value,
-                           "qty": float(o.qty),
-                           "limit_price": float(o.limit_price) if o.limit_price else None,
-                           "bot_name": "N/A"})
+                          "side": o.side.value, "type": o.order_type.value,
+                          "qty": float(o.qty),
+                          "limit_price": float(o.limit_price) if o.limit_price else None,
+                          "bot_name": "N/A"})
     except Exception as e:
         st.sidebar.error(f"Alpaca orders: {e}")
     try:
         for o in okx.fetch_open_orders():
             orders.append({"exchange": "OKX", "id": o['id'], "symbol": o['symbol'],
-                           "side": o['side'], "type": o['type'], "qty": o['amount'],
-                           "limit_price": o.get('price'), "bot_name": "N/A"})
+                          "side": o['side'], "type": o['type'], "qty": o['amount'],
+                          "limit_price": o.get('price'), "bot_name": "N/A"})
     except Exception as e:
         st.sidebar.error(f"OKX orders: {e}")
     return pd.DataFrame(orders)
