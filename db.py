@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Ensure the directory for a SQLite file DB exists before the engine connects.
 
 # Setup Database connection pool.
-engine = create_engine(DATABASE_URL, pool_recycle=3600, echo=False, future=True, pool_size=10, max_overflow=20, url="postgresql://postgres:qUu3bjw0r0SgJjcveChOTaJK79dGw18Yzc5oXPLC9sHKttq7HESxqVYEfJ3sHIFc@dx21ga49yjau99j7ptnp8xpg:5432/postgres")
+engine = create_engine(DATABASE_URL, pool_recycle=3600, echo=False, future=True, pool_size=10, max_overflow=20)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 Base = declarative_base()
 
