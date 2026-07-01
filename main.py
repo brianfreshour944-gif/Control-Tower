@@ -4,7 +4,7 @@ import plotly.express as px
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import atexit
-import db  # Your updated db.py
+import database as db   # ✅ Alias 'database' to 'db' so existing db.xxx calls keep working
 
 def scheduled_daily_reset():
     """This hits the PostgreSQL database."""
