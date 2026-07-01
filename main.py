@@ -66,3 +66,4 @@ with tab_historical:
         fig = px.line(df, x='snapshot_date', y='cumulative', title="Cumulative P&L")
         st.plotly_chart(fig, use_container_width=True)
 
+
