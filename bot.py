@@ -186,7 +186,9 @@ async def run_trading_bot():
 
     # Initial account snapshot
     try:
-        equity, buying_power, positions = await ex.get_account_snapshot(config.SYMBOLS, config.QUOTE_CURRENCY)
+        equity, buying_power, positions = await ex.get_account_snapshot(
+            config.SYMBOLS, config.QUOTE_CURRENCY
+        )
         start_equity = equity if equity > 0 else config.ACCOUNT_BASE
         logger.info(f"Account connected. Equity: ${start_equity:,.2f} | Buying power: ${buying_power:,.2f}")
     except Exception as e:
@@ -213,7 +215,9 @@ async def run_trading_bot():
                 reset_daily_starting_equity(start_equity)
                 logger.info(f"New day reset. Base equity: ${start_equity:,.2f}")
 
-            equity, buying_power, positions = await ex.get_account_snapshot(config.SYMBOLS, config.QUOTE_CURRENCY)
+            equity, buying_power, positions = await ex.get_account_snapshot(
+                config.SYMBOLS, config.QUOTE_CURRENCY
+            )
             open_count = len(positions)
             portfolio_exposure = sum(p["market_value"] for p in positions.values())
             daily_pnl_pct = ((equity - start_equity) / start_equity) * 100.0 if start_equity > 0 else 0.0
@@ -237,18 +241,36 @@ async def run_trading_bot():
                 await notifier.send_heartbeat_alert(equity, daily_pnl_pct, open_count, buying_power)
             cycle_counter += 1
 
-            # Dust cleanup
+            # ---------- Dust cleanup (updated) ----------
             for symbol in list(positions.keys()):
                 if positions[symbol]["market_value"] < config.DUST_VALUE_USD:
-                    logger.warning(f"Closing dust position {symbol} (${positions[symbol]['market_value']:.2f})")
-                    await execute_trade(symbol, "SELL", positions[symbol]["qty"], positions[symbol]["price"])
+                    # Retrieve the exchange‑specific minimum order quantity.
+                    # You need to implement `ex.get_min_qty(symbol)` in exchange.py.
+                    min_qty = ex.get_min_qty(symbol)
+
+                    if positions[symbol]["qty"] >= min_qty:
+                        # Quantity meets the exchange minimum – safe to sell.
+                        await execute_trade(
+                            symbol,
+                            "SELL",
+                            positions[symbol]["qty"],
+                            positions[symbol]["price"]
+                        )
+                    else:
+                        # Quantity too small; skip the sell to avoid a precision‑error.
+                        logger.info(
+                            f"IGNORING dust {symbol}: qty {positions[symbol]['qty']} "
+                            f"is below exchange min {min_qty}"
+                        )
+
+                    # Clean up local state regardless of whether we sold or ignored.
                     positions.pop(symbol, None)
                     entry_times.pop(symbol, None)
 
             open_count = len(positions)
             portfolio_exposure = sum(p["market_value"] for p in positions.values())
 
-            # Evaluate each asset
+            # ---------- Evaluate each asset ----------
             for symbol in config.SYMBOLS:
                 now_ts = time.time()
                 if now_ts < cooldown_until.get(symbol, 0):
@@ -346,3 +368,4 @@ if __name__ == "__main__":
         asyncio.run(run_trading_bot())
     except KeyboardInterrupt:
         logger.info("Shutdown requested. Exiting.")
+
