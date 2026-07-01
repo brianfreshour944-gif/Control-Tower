@@ -8,6 +8,7 @@ PnL are tracked by the bot via its own trade log.
 """
 import asyncio
 import logging
+import os
 
 import ccxt.async_support as ccxt
 import pandas as pd
@@ -19,11 +20,17 @@ logger = logging.getLogger("exchange")
 
 class OKXExchange:
     def __init__(self):
+        # FIX: ccxt's default OKX hostname (www.okx.com) returns "API key
+        # doesn't exist" (error 50119) for some regions/accounts even with
+        # valid keys. Overriding to app.okx.com (OKX's actual web UI endpoint)
+        # resolves this -- confirmed fix on every other OKX bot in this fleet.
+        hostname = os.getenv("OKX_HOSTNAME", "app.okx.com")
         self.client = ccxt.okx({
             "apiKey": config.OKX_API_KEY,
             "secret": config.OKX_SECRET_KEY,
             "password": config.OKX_PASSPHRASE,
             "enableRateLimit": True,
+            "hostname": hostname,
             "options": {
                 # OKX spot market BUY: interpret `amount` as base currency.
                 "createMarketBuyOrderRequiresPrice": False,
