@@ -1,20 +1,16 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
 WORKDIR /app
 
-# Install dependencies first for better layer caching
+# Copy the requirements file first for better caching
 COPY requirements.txt .
+
+# Install dependencies using the file
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy the rest of your application code
 COPY . .
 
-# Persistent SQLite location
-RUN mkdir -p /app/data
+EXPOSE 8501
 
-EXPOSE 8080
-
-CMD ["python", "bot.py"]
+CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]

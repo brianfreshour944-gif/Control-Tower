@@ -1,0 +1,429 @@
+"""
+FILE: database.py
+Handles all SQL connection, table creation, and data retrieval.
+"""
+
+import pandas as pd
+import streamlit as st
+from sqlalchemy import create_engine, text, inspect
+import os
+from datetime import datetime, date, timezone
+import ccxt
+
+# -------------------------------------------------
+# PostgreSQL helper functions (newly added)
+# -------------------------------------------------
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import logging
+
+DATABASE_URL = os.getenv("DATABASE_URL")  # e.g., postgresql://user:pass@localhost:5432/trading
+
+def get_db_connection():
+    """Returns a PostgreSQL connection using DATABASE_URL."""
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+def init_db():
+    """Creates the archive table if it doesn't exist (PostgreSQL)."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Your existing tables (bot_status, trades) are assumed to already exist.
+    # Adding the new archive table:
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS daily_snapshots (
+            id SERIAL PRIMARY KEY,
+            bot_name TEXT NOT NULL,
+            snapshot_date DATE NOT NULL DEFAULT CURRENT_DATE,
+            starting_equity DECIMAL(18, 8),
+            ending_equity DECIMAL(18, 8),
+            daily_pnl DECIMAL(18, 8),
+            daily_pnl_pct DECIMAL(10, 4),
+            win_rate DECIMAL(10, 4),
+            total_trades INTEGER,
+            wins INTEGER,
+            losses INTEGER,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            CONSTRAINT unique_bot_daily UNIQUE (bot_name, snapshot_date)
+        )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_daily_snapshots_bot_date ON daily_snapshots (bot_name, snapshot_date DESC);")
+    conn.commit()
+    cur.close()
+    conn.close()
+    logging.info("PostgreSQL archive table (daily_snapshots) is ready.")
+
+def archive_and_reset_daily_stats(bot_name: str = "default_bot"):
+    """
+    PostgreSQL version:
+    1. Archives today's stats to daily_snapshots.
+    2. Resets the daily P&L counters without deleting history.
+    """
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # 1. Fetch current live stats (latest row)
+    cur.execute("""
+        SELECT starting_equity, live_equity, daily_pnl_pct
+        FROM bot_status
+        WHERE bot_name = %s
+        ORDER BY timestamp DESC LIMIT 1
+    """, (bot_name,))
+    row = cur.fetchone()
+    
+    if not row:
+        logging.warning(f"No live stats for {bot_name}. Skipping archive.")
+        conn.close()
+        return
+    
+    today_str = datetime.now(timezone.utc).date().isoformat()
+    
+    starting_eq = float(row['starting_equity'] or 0.0)
+    ending_eq = float(row['live_equity'] or 0.0)
+    daily_pnl = ending_eq - starting_eq
+    daily_pnl_pct = float(row['daily_pnl_pct'] or 0.0)
+    
+    # 2. Get today's trade stats (PostgreSQL uses DATE(..) with AT TIME ZONE)
+    cur.execute("""
+        SELECT COUNT(*) AS total,
+               SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) AS wins,
+               SUM(CASE WHEN pnl < 0 THEN 1 ELSE 0 END) AS losses
+        FROM trades
+        WHERE bot_name = %s
+          AND DATE(timestamp AT TIME ZONE 'UTC') = %s
+    """, (bot_name, today_str))
+    stats = cur.fetchone()
+    
+    total_trades = stats['total'] or 0
+    wins = stats['wins'] or 0
+    losses = stats['losses'] or 0
+    win_rate = (wins / total_trades * 100) if total_trades > 0 else 0.0
+    
+    # 3. Insert archive (PostgreSQL ON CONFLICT instead of INSERT OR IGNORE)
+    cur.execute("""
+        INSERT INTO daily_snapshots 
+        (bot_name, snapshot_date, starting_equity, ending_equity, 
+         daily_pnl, daily_pnl_pct, win_rate, total_trades, wins, losses)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (bot_name, snapshot_date) DO NOTHING
+    """, (bot_name, today_str, starting_eq, ending_eq, 
+          daily_pnl, daily_pnl_pct, win_rate, total_trades, wins, losses))
+    
+    # 4. Reset live daily counters (set starting_equity = live_equity)
+    cur.execute("""
+        UPDATE bot_status
+        SET starting_equity = live_equity,
+            daily_pnl_pct = 0
+        WHERE bot_name = %s
+    """, (bot_name,))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    logging.info(f"[{today_str}] Archived & reset {bot_name} | Day P&L: ${daily_pnl:+.2f}")
+
+def get_historical_performance(bot_name: str, days: int = 90):
+    """Fetch archived data for the Streamlit dashboard."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT snapshot_date, daily_pnl, daily_pnl_pct, win_rate, total_trades
+        FROM daily_snapshots
+        WHERE bot_name = %s
+        ORDER BY snapshot_date DESC
+        LIMIT %s
+    """, (bot_name, days))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+# -------------------------------------------------
+# Existing SQLAlchemy helpers (unchanged)
+# -------------------------------------------------
+@st.cache_resource
+def get_db_engine():
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        db_url = db_url.replace("postgresql+psycopg2://", "postgresql://")
+        db_url = db_url.replace("postgres://", "postgresql://")  # <-- ADD THIS LINE
+    return create_engine(db_url, pool_size=5, max_overflow=10)
+
+# ---------- Migrations ----------
+def ensure_table_exists(table_name):
+    engine = get_db_engine()
+    inspector = inspect(engine)
+    if not inspector.has_table(table_name):
+        with engine.connect() as conn:
+            if table_name == "bot_status":
+                conn.execute(text("""CREATE TABLE bot_status (
+                    bot_name TEXT PRIMARY KEY, status TEXT DEFAULT 'STOP',
+                    last_update TIMESTAMP DEFAULT NOW(), daily_loss REAL DEFAULT 0,
+                    daily_loss_limit REAL DEFAULT 100, config TEXT DEFAULT '{}')"""))
+            elif table_name == "bot_errors":
+                conn.execute(text("""CREATE TABLE bot_errors (
+                    id SERIAL PRIMARY KEY, bot_name TEXT,
+                    error_message TEXT, timestamp TIMESTAMP DEFAULT NOW())"""))
+            elif table_name == "trades":
+                conn.execute(text("""CREATE TABLE trades (
+                    id SERIAL PRIMARY KEY, bot_name TEXT, exchange TEXT, symbol TEXT,
+                    side TEXT, price REAL, quantity REAL, value REAL, fee REAL DEFAULT 0,
+                    order_id TEXT, timestamp TIMESTAMP DEFAULT NOW())"""))
+            elif table_name == "bot_orders":
+                conn.execute(text("""CREATE TABLE bot_orders (
+                    order_id TEXT PRIMARY KEY, bot_name TEXT, symbol TEXT, side TEXT,
+                    price REAL, status TEXT, created_at TIMESTAMP DEFAULT NOW())"""))
+            elif table_name == "backtest_results":
+                conn.execute(text("""CREATE TABLE backtest_results (
+                    id SERIAL PRIMARY KEY, bot_name TEXT, strategy_name TEXT,
+                    start_date DATE, end_date DATE, total_trades INTEGER,
+                    net_profit REAL, sharpe_ratio REAL, max_drawdown_pct REAL,
+                    win_rate REAL, created_at TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(bot_name, start_date, end_date))"""))
+            conn.commit()
+
+def migrate_bot_status():
+    engine = get_db_engine()
+    inspector = inspect(engine)
+    if inspector.has_table("bot_status"):
+        cols = [c['name'] for c in inspector.get_columns("bot_status")]
+        with engine.connect() as conn:
+            if "daily_loss" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN daily_loss REAL DEFAULT 0"))
+            if "daily_loss_limit" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN daily_loss_limit REAL DEFAULT 100"))
+            if "config" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN config TEXT DEFAULT '{}'"))
+            # Equity tracking: starting_equity is set once (first time a bot
+            # reports in) and never overwritten. live_equity is overwritten
+            # on every report. live_equity_updated_at lets the dashboard
+            # flag a bot as stale if it stops reporting (e.g. crashed).
+            if "starting_equity" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN starting_equity REAL"))
+            if "live_equity" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN live_equity REAL"))
+            if "live_equity_updated_at" not in cols:
+                conn.execute(text("ALTER TABLE bot_status ADD COLUMN live_equity_updated_at TIMESTAMP"))
+            conn.commit()
+
+def migrate_bot_orders():
+    engine = get_db_engine()
+    inspector = inspect(engine)
+    if inspector.has_table("bot_orders"):
+        cols = [c['name'] for c in inspector.get_columns("bot_orders")]
+        with engine.connect() as conn:
+            if "created_at" not in cols:
+                conn.execute(text("ALTER TABLE bot_orders ADD COLUMN created_at TIMESTAMP DEFAULT NOW()"))
+            conn.commit()
+
+def migrate_trades():
+    engine = get_db_engine()
+    inspector = inspect(engine)
+    if inspector.has_table("trades"):
+        cols = [c['name'] for c in inspector.get_columns("trades")]
+        with engine.connect() as conn:
+            if "fee" not in cols:
+                conn.execute(text("ALTER TABLE trades ADD COLUMN fee REAL DEFAULT 0"))
+                conn.commit()
+
+# ---------- Data loaders ----------
+@st.cache_data(ttl=30, show_spinner=False)
+def load_trades(limit=5000):
+    ensure_table_exists("trades")
+    migrate_trades()
+    ensure_table_exists("backtest_results")
+    df = pd.read_sql(f"SELECT * FROM trades ORDER BY timestamp DESC LIMIT {limit}", get_db_engine())
+    # Postgres NUMERIC columns come back as Decimal, which breaks pandas .style.format()
+    # and silently fails Streamlit's dataframe rendering. Force them to float.
+    for col in ['price', 'quantity', 'value', 'fee', 'fee_paid', 'realized_pnl', 'pnl_pct']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype(float)
+    df['fee'] = df['fee'].fillna(0.0) if 'fee' in df.columns else 0.0
+    df['side'] = df['side'].str.upper()
+    return df
+
+@st.cache_data(ttl=10, show_spinner=False)
+def get_bot_status():
+    ensure_table_exists("bot_status")
+    migrate_bot_status()
+    return pd.read_sql("SELECT * FROM bot_status", get_db_engine())
+
+@st.cache_data(ttl=60, show_spinner=False)
+def load_errors(limit=100):
+    ensure_table_exists("bot_errors")
+    return pd.read_sql(f"SELECT * FROM bot_errors ORDER BY timestamp DESC LIMIT {limit}", get_db_engine())
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_backtest_results():
+    ensure_table_exists("backtest_results")
+    return pd.read_sql("SELECT * FROM backtest_results ORDER BY created_at DESC", get_db_engine())
+
+@st.cache_data(ttl=10, show_spinner=False)
+def get_open_orders_from_db():
+    ensure_table_exists("bot_orders")
+    migrate_bot_orders()
+    return pd.read_sql("SELECT * FROM bot_orders WHERE status = 'OPEN'", get_db_engine())
+
+@st.cache_data(ttl=10, show_spinner=False)
+def get_all_orders_debug():
+    ensure_table_exists("bot_orders")
+    migrate_bot_orders()
+    return pd.read_sql("SELECT * FROM bot_orders", get_db_engine())
+
+@st.cache_data(ttl=15, show_spinner=False)
+@st.cache_data(ttl=30, show_spinner=False)
+def get_current_prices(symbols):
+    """
+    Given a list of symbols (e.g. ['BTC/USD', 'ETH/USD', 'SOL/USDT']),
+    returns {symbol: price} for whichever ones could be priced. Crypto
+    symbols are priced via OKX's public ticker endpoint (no API key
+    needed). Alpaca equity/crypto symbols fall back to the Alpaca data
+    client if OKX doesn't recognize them.
+
+    Missing/unpriceable symbols are simply omitted from the result --
+    callers (e.g. compute_bot_equity) should fall back to cost basis
+    for any symbol not present in the returned dict, rather than this
+    function guessing or raising.
+    """
+    prices = {}
+    if not symbols:
+        return prices
+
+    try:
+        okx_public = ccxt.okx({'enableRateLimit': True})
+        tickers = okx_public.fetch_tickers()
+        for sym in symbols:
+            # OKX uses BTC/USDT style; bots may store BTC/USD -- try both
+            candidates = [sym, sym.replace('/USD', '/USDT')]
+            for c in candidates:
+                if c in tickers and tickers[c].get('last'):
+                    prices[sym] = float(tickers[c]['last'])
+                    break
+    except Exception as e:
+        st.sidebar.warning(f"Could not fetch OKX public prices: {e}")
+
+    missing = [s for s in symbols if s not in prices]
+    if missing:
+        try:
+            from alpaca.data.historical import CryptoHistoricalDataClient, StockHistoricalDataClient
+            from alpaca.data.requests import CryptoLatestTradeRequest, StockLatestTradeRequest
+            crypto_client = CryptoHistoricalDataClient()
+            for sym in missing:
+                try:
+                    req = CryptoLatestTradeRequest(symbol_or_symbols=sym)
+                    trade = crypto_client.get_crypto_latest_trade(req)
+                    prices[sym] = float(trade[sym].price)
+                except Exception:
+                    continue
+        except Exception as e:
+            st.sidebar.warning(f"Could not fetch Alpaca fallback prices: {e}")
+
+    return prices
+
+def get_unified_portfolio():
+    from alpaca.trading.client import TradingClient
+    from alpaca.trading.requests import GetOrdersRequest
+    from alpaca.trading.enums import QueryOrderStatus
+    API_KEY = os.getenv("APCA_API_KEY_ID")
+    API_SECRET = os.getenv("APCA_API_SECRET_KEY")
+    PAPER = os.getenv("APCA_API_PAPER", "true").lower() == "true"
+    trading_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=PAPER)
+    OKX_SANDBOX = os.getenv("OKX_SANDBOX", "true").lower() == "true"
+    okx = ccxt.okx({
+        'apiKey': os.getenv('OKX_API_KEY'),
+        'secret': os.getenv('OKX_API_SECRET'),
+        'password': os.getenv('OKX_PASSPHRASE'),
+        'hostname': 'app.okx.com',
+        'enableRateLimit': True,
+        'options': {'defaultType': 'spot'}
+    })
+    okx.set_sandbox_mode(OKX_SANDBOX)
+
+    positions = []
+    try:
+        for p in trading_client.get_all_positions():
+            qty = float(p.qty); avg = float(p.avg_entry_price); cur = float(p.current_price)
+            positions.append({"source": "Alpaca", "symbol": p.symbol, "quantity": qty,
+                              "avg_entry": avg, "current_price": cur,
+                              "market_value": qty * cur, "unrealized_pl": (cur - avg) * qty,
+                              "is_demo": PAPER})
+    except Exception as e:
+        st.sidebar.error(f"Alpaca positions: {e}")
+    try:
+        balance = okx.fetch_balance()
+        tickers = okx.fetch_tickers()
+        for coin, amount in balance['total'].items():
+            if float(amount) > 0.001 and coin not in ['USDT', 'USD', 'USDC']:
+                sym = f"{coin}/USDT"
+                if sym in tickers:
+                    price = tickers[sym]['last']
+                    positions.append({"source": "OKX", "symbol": coin, "quantity": float(amount),
+                                      "avg_entry": 0.0, "current_price": price,
+                                      "market_value": float(amount) * price, "unrealized_pl": 0.0,
+                                      "is_demo": OKX_SANDBOX})
+    except Exception as e:
+        st.sidebar.error(f"OKX balance: {e}")
+    return pd.DataFrame(positions)
+
+@st.cache_data(ttl=10, show_spinner=False)
+def get_live_exchange_orders():
+    from alpaca.trading.client import TradingClient
+    from alpaca.trading.requests import GetOrdersRequest
+    from alpaca.trading.enums import QueryOrderStatus
+    API_KEY = os.getenv("APCA_API_KEY_ID")
+    API_SECRET = os.getenv("APCA_API_SECRET_KEY")
+    PAPER = os.getenv("APCA_API_PAPER", "true").lower() == "true"
+    trading_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=PAPER)
+    okx = ccxt.okx({
+        'apiKey': os.getenv('OKX_API_KEY'),
+        'secret': os.getenv('OKX_API_SECRET'),
+        'password': os.getenv('OKX_PASSPHRASE'),
+        'hostname': 'app.okx.com',
+        'enableRateLimit': True,
+        'options': {'defaultType': 'spot'}
+    })
+    okx.set_sandbox_mode(True)
+
+    orders = []
+    try:
+        for o in trading_client.get_orders(filter=GetOrdersRequest(status=QueryOrderStatus.OPEN)):
+            orders.append({"exchange": "Alpaca", "id": o.id, "symbol": o.symbol,
+                          "side": o.side.value, "type": o.order_type.value,
+                          "qty": float(o.qty),
+                          "limit_price": float(o.limit_price) if o.limit_price else None,
+                          "bot_name": "N/A"})
+    except Exception as e:
+        st.sidebar.error(f"Alpaca orders: {e}")
+    try:
+        for o in okx.fetch_open_orders():
+            orders.append({"exchange": "OKX", "id": o['id'], "symbol": o['symbol'],
+                          "side": o['side'], "type": o['type'], "qty": o['amount'],
+                          "limit_price": o.get('price'), "bot_name": "N/A"})
+    except Exception as e:
+        st.sidebar.error(f"OKX orders: {e}")
+    return pd.DataFrame(orders)
+
+def reset_all_trading_stats():
+    """⚠️ DESTRUCTIVE: Deletes all trades and resets daily loss to 0."""
+    engine = get_db_engine()
+    with engine.connect() as conn:
+        conn.execute(text("DELETE FROM trades"))
+        conn.execute(text("DELETE FROM bot_orders"))
+        conn.execute(text("UPDATE bot_status SET daily_loss = 0"))
+        conn.execute(text("""
+            INSERT INTO bot_status (bot_name, status, daily_loss, daily_loss_limit)
+            VALUES ('okx_grid_bot', 'RUNNING', 0, 150)
+            ON CONFLICT (bot_name) DO UPDATE
+            SET daily_loss = 0, status = 'RUNNING', daily_loss_limit = 150
+        """))
+        conn.commit()
+    st.cache_data.clear()
+
+# ===== NEW: Clear Errors Function =====
+def clear_errors():
+    """⚠️ DESTRUCTIVE: Deletes all error logs from the bot_errors table."""
+    engine = get_db_engine()
+    with engine.connect() as conn:
+        conn.execute(text("DELETE FROM bot_errors"))
+        conn.commit()
+    st.cache_data.clear()
